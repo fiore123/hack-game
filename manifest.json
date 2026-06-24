@@ -1,6 +1,6 @@
 ```json
 {
-  "name": "Neon Overdrive",
+  "name": "Overdrive",
   "short_name": "Overdrive",
   "start_url": "./index.html",
   "display": "standalone",
