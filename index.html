@@ -186,29 +186,31 @@
         }
         @media (max-width: 767px) {
             main {
-                padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+                padding-bottom: calc(52px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px))) !important;
             }
             .bottom-tabbar {
-                height: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
-                padding-top: 4px;
-                padding-bottom: env(safe-area-inset-bottom, 0px);
+                height: calc(46px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px))) !important;
+                min-height: 46px !important;
+                padding-top: 2px !important;
+                padding-bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px)) !important;
                 align-items: flex-start !important;
                 overflow: visible;
                 transform: translateZ(0);
             }
             .bottom-tabbar .bottom-nav-item {
-                min-height: 46px;
+                min-height: 42px;
+                height: 42px;
                 padding-top: 0;
                 padding-bottom: 0;
                 line-height: 1;
             }
             .bottom-tabbar .bottom-nav-item i {
                 line-height: 1;
-                margin-bottom: 2px;
-                font-size: 1rem;
+                margin-bottom: 1px;
+                font-size: 0.94rem;
             }
             .bottom-tabbar .bottom-nav-item span {
-                font-size: 0.54rem;
+                font-size: 0.50rem;
             }
         }
     </style>
@@ -369,13 +371,20 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2 text-[10px] font-mono-cyber">
                                     <div class="bg-black/30 border border-amber-500/10 rounded-lg px-3 py-2 flex justify-between gap-2">
-                                        <span class="text-slate-500 uppercase">Boost Upgrade:</span>
+                                        <span class="text-slate-500 uppercase">Boost Atual:</span>
                                         <span id="breach-bonus-display" class="text-amber-400 font-black">5.00x</span>
                                     </div>
                                     <div class="bg-black/30 border border-amber-500/10 rounded-lg px-3 py-2 flex justify-between gap-2">
                                         <span class="text-slate-500 uppercase">Tempo/combo:</span>
                                         <span id="breach-duration-display" class="text-amber-400 font-black">45s</span>
                                     </div>
+                                </div>
+                                <div class="bg-black/25 border border-amber-500/10 rounded-xl p-3 flex flex-col gap-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-[10px] text-amber-400 font-black uppercase tracking-widest">Melhorias Breach</span>
+                                        <span class="text-[9px] text-slate-500 font-mono-cyber">Segure para comprar continuamente</span>
+                                    </div>
+                                    <div id="breach-upgrade-panel" class="grid grid-cols-1 sm:grid-cols-3 gap-2"></div>
                                 </div>
                                 <div class="grid grid-cols-4 md:grid-cols-6 gap-2" id="breach-grid"></div>
                             </div>
@@ -655,12 +664,19 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="injectCredits(1000000)" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-400 font-bold text-xs uppercase taptarget-glow">+1M C$</button>
                                 <button onclick="injectCredits(1000000000)" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-300 font-bold text-xs uppercase taptarget-glow">+1B C$</button>
+                                <button onclick="injectCredits(1000000000000)" class="p-3 rounded-lg bg-black/40 border border-cyan-300/30 text-cyan-200 font-bold text-xs uppercase taptarget-glow">+1T C$</button>
                                 <button onclick="injectData(10000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-400 font-bold text-xs uppercase taptarget-glow">+10K DF</button>
                                 <button onclick="injectData(1000000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-300 font-bold text-xs uppercase taptarget-glow">+1M DF</button>
+                                <button onclick="injectData(10000000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-300/30 text-fuchsia-200 font-bold text-xs uppercase taptarget-glow">+10M DF</button>
                                 <button onclick="injectXP(5000)" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase taptarget-glow">+5K XP</button>
                                 <button onclick="injectXP(250000)" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-300 font-bold text-xs uppercase taptarget-glow">+250K XP</button>
                                 <button onclick="injectXP(5000000)" class="p-3 rounded-lg bg-black/40 border border-orange-500/30 text-orange-300 font-bold text-xs uppercase taptarget-glow">+5M XP</button>
+                                <button onclick="injectXP(100000000)" class="p-3 rounded-lg bg-black/40 border border-orange-400/30 text-orange-200 font-bold text-xs uppercase taptarget-glow">+100M XP</button>
+                                <button onclick="injectXP(1000000000)" class="p-3 rounded-lg bg-black/40 border border-yellow-300/30 text-yellow-200 font-bold text-xs uppercase taptarget-glow">+1B XP</button>
                                 <button onclick="injectStatPoints(250)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-300 font-bold text-xs uppercase taptarget-glow">+250 Pontos</button>
+                                <button onclick="injectStatPoints(1000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-300/30 text-fuchsia-200 font-bold text-xs uppercase taptarget-glow">+1000 Pontos</button>
+                                <button onclick="injectPrestigeTokens(25)" class="p-3 rounded-lg bg-black/40 border border-amber-400/30 text-amber-300 font-bold text-xs uppercase taptarget-glow">+25 Tokens</button>
+                                <button onclick="injectPrestigeLevel(10)" class="p-3 rounded-lg bg-black/40 border border-amber-300/30 text-amber-200 font-bold text-xs uppercase taptarget-glow">+10 HN</button>
                                 <button onclick="injectLegendaryCards()" class="p-3 rounded-lg bg-black/40 border border-yellow-500/30 text-yellow-400 font-bold text-xs uppercase taptarget-glow col-span-2">+5 Chips Lendários</button>
                                 <button onclick="saveGame(true)" class="p-3 rounded-lg bg-emerald-950 border border-emerald-500/40 text-emerald-400 font-bold text-xs uppercase taptarget-glow col-span-1">Salvar Jogo</button>
                                 <button onclick="wipeSaveGame()" class="p-3 rounded-lg bg-rose-950 border border-rose-500/40 text-rose-400 font-bold text-xs uppercase taptarget-glow col-span-1">Wipe Save</button>
@@ -789,6 +805,9 @@
                                 <button onclick="forceBreachReward()" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-300 font-bold text-xs uppercase taptarget-glow">Breach DF</button>
                                 <button onclick="cloneArenaEnemies()" class="p-3 rounded-lg bg-black/40 border border-rose-500/30 text-rose-300 font-bold text-xs uppercase taptarget-glow">Clonar Mobs</button>
                                 <button onclick="freezeArenaThreat()" class="p-3 rounded-lg bg-black/40 border border-slate-500/30 text-slate-300 font-bold text-xs uppercase taptarget-glow">Pausar NW</button>
+                                <button onclick="grantCardVault()" class="p-3 rounded-lg bg-black/40 border border-yellow-400/30 text-yellow-300 font-bold text-xs uppercase taptarget-glow">Cofre Chips</button>
+                                <button onclick="maxPrestigePerks()" class="p-3 rounded-lg bg-amber-950 border border-amber-500/40 text-amber-300 font-bold text-xs uppercase taptarget-glow">Max Perks</button>
+                                <button onclick="grantOverkillResources()" class="p-3 rounded-lg bg-cyan-950 border border-cyan-400/40 text-cyan-300 font-bold text-xs uppercase taptarget-glow col-span-2">Pacote Overkill</button>
                             </div>
                         </div>
 
@@ -808,7 +827,7 @@
     </div>
 
     <!-- BOTTOM TAB BAR (Navegação Mobile App-like) -->
-    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[54px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
+    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[46px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
         <button onclick="switchTab('tab-dash')" id="mobile-btn-tab-dash" class="bottom-nav-item active relative">
             <i class="fa-solid fa-solar-panel"></i>
             <span>Cortex</span>
@@ -1005,7 +1024,7 @@
             
             prestigeLevel: 0, 
             prestigeTokens: 0,
-            prestigePerks: { fire: 0, hp: 0, xp: 0, data: 0, luck: 0, daemon: 0, slots: 0, netwatch: 0, breach: 0, breach_time: 0, breach_chain: 0 }
+            prestigePerks: { fire: 0, hp: 0, xp: 0, data: 0, luck: 0, daemon: 0, slots: 0, netwatch: 0, breach: 0, breach_time: 0, breach_chain: 0, click: 0, credits: 0, damage: 0, crit: 0, card_drop: 0, card_rarity: 0, auto: 0, regen: 0, start_cache: 0, start_frag: 0, breach_df: 0 }
         };
 
         const daemons = [
@@ -1056,9 +1075,9 @@
             { id: 'u_repair_forge', name: 'Forja de Reparos', desc: '+10% chance efetiva de reparo.', costCredits: 900000, costData: 1200, value: 0.10, purchased: 0, max: 8, type: 'repair_bonus' },
             { id: 'u_slot_expander', name: 'Expansor de Slots', desc: '+1 slot de chip a cada 2 níveis.', costCredits: 1400000, costData: 1600, value: 1, purchased: 0, max: 6, type: 'max_card_slots' },
             { id: 'u_breach_farm', name: 'Breach Harvester', desc: '+6 DF ao concluir Breach.', costCredits: 2600000, costData: 2200, value: 6, purchased: 0, max: 12, type: 'breach_df_bonus' },
-            { id: 'u_breach_amplifier', name: 'Amplificador Breach', desc: '+0.35x no multiplicador do Breach por nível.', costCredits: 3200000, costData: 2600, value: 0.35, purchased: 0, max: 18, type: 'breach_multiplier' },
+            { id: 'u_breach_amplifier', name: 'Amplificador Breach', desc: '+35% no multiplicador do Breach por nível.', costCredits: 3200000, costData: 2600, value: 0.35, purchased: 0, max: 18, type: 'breach_multiplier' },
             { id: 'u_breach_timer', name: 'Cronômetro Breach', desc: '+6s de duração acumulável ao concluir combinação.', costCredits: 3800000, costData: 3000, value: 6, purchased: 0, max: 20, type: 'breach_duration' },
-            { id: 'u_breach_chain', name: 'Cadeia Breach', desc: '+0.15x extra quando concluir outro Breach ainda ativo.', costCredits: 5200000, costData: 3600, value: 0.15, purchased: 0, max: 18, type: 'breach_stack_bonus' },
+            { id: 'u_breach_chain', name: 'Cadeia Breach', desc: '+15% extra quando concluir outro Breach ainda ativo.', costCredits: 5200000, costData: 3600, value: 0.15, purchased: 0, max: 18, type: 'breach_stack_bonus' },
             { id: 'u_quantum_barrel', name: 'Cano Quântico', desc: '+6% dano final dos disparos.', costCredits: 4800000, costData: 3000, value: 0.06, purchased: 0, max: 15, type: 'damage_multiplier' },
             { id: 'u_singularity_core', name: 'Core de Singularidade', desc: '+0.12x multiplicador geral.', costCredits: 15000000, costData: 6000, value: 0.12, purchased: 0, max: 15, type: 'global_multiplier' }
         ];
@@ -1100,9 +1119,20 @@
             { id: 'p_daemon', name: 'Colmeia Persistente', desc: '+15% C$/s passivo/lvl.', purchased: 0, max: 10, icon: 'fa-network-wired' },
             { id: 'p_slots', name: 'Deck Sem Fundo', desc: '+1 slot de chip permanente/lvl.', purchased: 0, max: 6, icon: 'fa-sd-card' },
             { id: 'p_netwatch', name: 'Sombra Permanente', desc: '-8% pressão NetWatch/lvl.', purchased: 0, max: 10, icon: 'fa-user-secret' },
-            { id: 'p_breach', name: 'Breach Ascendente', desc: '+0.40x multiplicador Breach/lvl.', purchased: 0, max: 12, icon: 'fa-puzzle-piece' },
+            { id: 'p_breach', name: 'Breach Ascendente', desc: '+40% multiplicador Breach/lvl.', purchased: 0, max: 12, icon: 'fa-puzzle-piece' },
             { id: 'p_breach_time', name: 'Relógio Abissal', desc: '+10s acumuláveis no Breach/lvl.', purchased: 0, max: 12, icon: 'fa-hourglass-half' },
-            { id: 'p_breach_chain', name: 'Sequência Infinita', desc: '+0.25x em Breach ativo/lvl.', purchased: 0, max: 10, icon: 'fa-link' }
+            { id: 'p_breach_chain', name: 'Sequência Infinita', desc: '+25% em Breach ativo/lvl.', purchased: 0, max: 10, icon: 'fa-link' },
+            { id: 'p_breach_df', name: 'Datamine Eterno', desc: '+15 DF fixo por Breach concluído/lvl.', purchased: 0, max: 20, icon: 'fa-database' },
+            { id: 'p_click', name: 'Dedo Fantasma', desc: '+25% poder do Hack manual/lvl.', purchased: 0, max: 12, icon: 'fa-fingerprint' },
+            { id: 'p_credits', name: 'Banco Recursivo', desc: '+30% ganhos globais de C$/lvl.', purchased: 0, max: 12, icon: 'fa-coins' },
+            { id: 'p_damage', name: 'Munição Astral', desc: '+15% dano final na Arena/lvl.', purchased: 0, max: 12, icon: 'fa-burst' },
+            { id: 'p_crit', name: 'Sorte Crítica', desc: '+4% chance crítica/lvl.', purchased: 0, max: 10, icon: 'fa-crosshairs' },
+            { id: 'p_card_drop', name: 'Chuva de Chips', desc: '+12% chance relativa de drop/lvl.', purchased: 0, max: 15, icon: 'fa-layer-group' },
+            { id: 'p_card_rarity', name: 'Forja de Raridade', desc: '+4% chance de subir estrela ao gerar chip/lvl.', purchased: 0, max: 15, icon: 'fa-star' },
+            { id: 'p_auto', name: 'Mãos Invisíveis', desc: '+2 Hacks automáticos por segundo/lvl.', purchased: 0, max: 10, icon: 'fa-hand-sparkles' },
+            { id: 'p_regen', name: 'Medula de Backup', desc: '+0.8 HP/s na Arena/lvl.', purchased: 0, max: 12, icon: 'fa-heart-pulse' },
+            { id: 'p_start_cache', name: 'Cache Inicial', desc: 'Começa cada ciclo com +25k C$/lvl por HN.', purchased: 0, max: 10, icon: 'fa-vault' },
+            { id: 'p_start_frag', name: 'Bolso de Fragmentos', desc: 'Começa cada ciclo com +50 DF/lvl por HN.', purchased: 0, max: 10, icon: 'fa-gem' }
         ];
 
         // ================= SISTEMA DE SAVE / LOAD =================
@@ -1160,7 +1190,8 @@
         }
 
         function getEffectiveGlobalMultiplier() {
-            return state.multiplier * (1 + getUpgradeStackValue('global_multiplier') + getPurchasedCyberValue('global_multiplier'));
+            const prestigeCreditBoost = 1 + (getPrestigePerkLevel('credits') * 0.30);
+            return state.multiplier * prestigeCreditBoost * (1 + getUpgradeStackValue('global_multiplier') + getPurchasedCyberValue('global_multiplier'));
         }
 
         function getDataYieldMultiplier() {
@@ -1390,6 +1421,7 @@
             initAmbientParticles();
             normalizeStateDefaults();
             loadGame(); 
+            normalizeStateDefaults();
             syncCyberwareUnlocks();
             
             initialLogs.forEach(log => addSystemLog(log, 'system'));
@@ -1518,6 +1550,19 @@
             const activeTab = document.getElementById(tabId);
             if (activeTab) {
                 activeTab.classList.add('active');
+            }
+
+            if (tabId === 'tab-cards') {
+                refreshCardInventoryUI();
+            } else if (tabId === 'tab-market') {
+                renderDaemons();
+                renderUpgrades();
+                updatePurchaseButtons();
+            } else if (tabId === 'tab-prestige') {
+                renderPrestigeTab();
+            } else if (tabId === 'tab-admin') {
+                syncAdminControlValues();
+                updateAdminSummary();
             }
 
             // Atualizar classes dos botões DESKTOP
@@ -1772,7 +1817,7 @@
                         breachEndTime = now + durationMs;
                     }
                     
-                    const breachDfReward = Math.max(1, Math.round((8 + Math.floor(state.level / 3) + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus')) * getDataYieldMultiplier()));
+                    const breachDfReward = Math.max(1, Math.round((8 + Math.floor(state.level / 3) + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus') + (getPrestigePerkLevel('breach_df') * 15)) * getDataYieldMultiplier()));
                     state.dataFragments += breachDfReward;
                     playSynthSound('powerup'); 
                     showNotification(`BREACH CONCLUÍDO! ${breachMultiplier.toFixed(2)}x C$ + ${breachDfReward} DF`, "success");
@@ -1816,7 +1861,7 @@
                         </div>
                         <div class="flex justify-between items-center pt-1">
                             <div class="flex flex-col"><span class="text-[9px] text-slate-500 font-bold uppercase">Rendimento</span><span class="text-emerald-400 font-bold text-xs font-mono-cyber">${(d.count*d.baseCps).toFixed(1)} C$/s</span>${d.dataCps ? `<span class="text-fuchsia-400 font-bold text-xs font-mono-cyber">${(d.count*d.dataCps).toFixed(2)} DF/s</span>` : ''}</div>
-                            <button onpointerdown="startMarketHoldBuy(event, 'daemon', '${d.id}')" onpointerup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" oncontextmenu="return false" id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
+                            <button ${canBuy ? getHoldBuyAttrs('daemon', d.id) : ''} id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
                         </div>
                     </div>
                 `;
@@ -1849,6 +1894,9 @@
         let marketHoldType = null;
         let marketHoldId = null;
         let marketHoldActive = false;
+        let marketHoldLastRender = 0;
+        let marketHoldLastStart = 0;
+        let marketHoldLastSignature = '';
 
         function executeMarketPurchase(type, id, silent = false, deferRender = false) {
             if (type === 'daemon') return buyDaemon(id, silent, deferRender);
@@ -1856,41 +1904,72 @@
             return false;
         }
 
+        function refreshMarketHoldTarget(force = false) {
+            const now = Date.now();
+            if (!force && now - marketHoldLastRender < 160) return;
+            marketHoldLastRender = now;
+            if (marketHoldType === 'daemon') {
+                renderDaemons();
+            } else if (marketHoldType === 'upgrade') {
+                renderUpgrades();
+                renderBreachQuickUpgrades();
+            } else {
+                renderDaemons();
+                renderUpgrades();
+                renderBreachQuickUpgrades();
+            }
+            updatePurchaseButtons();
+            updateUI();
+        }
+
         function startMarketHoldBuy(event, type, id) {
             if (event) {
+                if (event.type === 'mousedown' && window.PointerEvent) return;
                 event.preventDefault();
                 event.stopPropagation();
             }
-            stopMarketHoldBuy();
+            const signature = `${type}:${id}`;
+            const now = Date.now();
+            if (marketHoldActive && marketHoldLastSignature === signature && now - marketHoldLastStart < 120) return;
+            marketHoldLastStart = now;
+            marketHoldLastSignature = signature;
+
+            stopMarketHoldBuy(false);
             marketHoldType = type;
             marketHoldId = id;
             marketHoldActive = true;
 
             const firstBuy = executeMarketPurchase(type, id, false, true);
-            if (!firstBuy) return;
+            if (!firstBuy) {
+                marketHoldActive = false;
+                return;
+            }
+            refreshMarketHoldTarget(true);
 
             marketHoldTimer = setTimeout(() => {
                 marketHoldRepeater = setInterval(() => {
                     const bought = executeMarketPurchase(marketHoldType, marketHoldId, true, true);
-                    if (!bought) stopMarketHoldBuy();
-                }, 115);
-            }, 260);
+                    if (!bought) {
+                        stopMarketHoldBuy(true);
+                        return;
+                    }
+                    refreshMarketHoldTarget(false);
+                }, 95);
+            }, 230);
         }
 
-        function stopMarketHoldBuy() {
-            const shouldRefreshMarket = marketHoldActive;
+        function stopMarketHoldBuy(shouldRefreshMarket = true) {
+            const wasActive = marketHoldActive;
             if (marketHoldTimer) clearTimeout(marketHoldTimer);
             if (marketHoldRepeater) clearInterval(marketHoldRepeater);
             marketHoldTimer = null;
             marketHoldRepeater = null;
+            marketHoldActive = false;
+            if (wasActive && shouldRefreshMarket) {
+                refreshMarketHoldTarget(true);
+            }
             marketHoldType = null;
             marketHoldId = null;
-            marketHoldActive = false;
-            if (shouldRefreshMarket) {
-                renderDaemons();
-                renderUpgrades();
-                updateUI();
-            }
         }
 
         function recalculatePassiveCps() {
@@ -1930,7 +2009,7 @@
                                 <span class="text-slate-500">CUSTO:</span>
                                 <span class="text-amber-400">${isMax?'---':`${u.costCredits.toFixed(0)} C$ ${u.costData>0?`+ ${u.costData} DF`:''}`}</span>
                             </div>
-                            <button onpointerdown="startMarketHoldBuy(event, 'upgrade', '${u.id}')" onpointerup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" oncontextmenu="return false" id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
+                            <button ${canBuy && !isMax ? getHoldBuyAttrs('upgrade', u.id) : ''} id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
                         </div>
                     </div>
                 `;
@@ -1953,6 +2032,7 @@
             
             if (!deferRender) {
                 renderUpgrades();
+                renderBreachQuickUpgrades();
             }
             updateUI();
             
@@ -2041,6 +2121,12 @@
                 else if(r < 0.98) stars = Math.min(maxStars, minStars + 3); 
                 else stars = maxStars;
             }
+            const rarityBoostChance = Math.min(0.85, getPrestigePerkLevel('card_rarity') * 0.04);
+            for (let i = 0; i < getPrestigePerkLevel('card_rarity'); i++) {
+                if (stars < maxStars && Math.random() < rarityBoostChance) {
+                    stars++;
+                }
+            }
             stars = Math.max(1, Math.min(5, stars));
             
             const t = types[Math.floor(Math.random() * types.length)];
@@ -2063,13 +2149,35 @@
             return state.cards.filter(c => c.equipped && c.type === type).reduce((sum, c) => sum + c.value, 0);
         }
 
+        let cardInventoryRefreshQueued = false;
+
+        function refreshCardInventoryUI() {
+            renderCardsTab();
+            updateAdminSummary();
+        }
+
+        function scheduleCardInventoryRefresh() {
+            if (cardInventoryRefreshQueued) return;
+            cardInventoryRefreshQueued = true;
+            const runRefresh = () => {
+                cardInventoryRefreshQueued = false;
+                refreshCardInventoryUI();
+            };
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(runRefresh);
+            } else {
+                setTimeout(runRefresh, 0);
+            }
+            setTimeout(refreshCardInventoryUI, 80);
+        }
+
         function addCardToInventory(card, shouldRender = true) {
             if (!card) return null;
             if (!Array.isArray(state.cards)) state.cards = [];
+            card.equipped = Boolean(card.equipped);
             state.cards.push(card);
             if (shouldRender) {
-                renderCardsTab();
-                updateAdminSummary();
+                scheduleCardInventoryRefresh();
             }
             return card;
         }
@@ -2275,7 +2383,10 @@
             state.prestigeTokens++; 
             state.multiplier = 1.0 + state.prestigeLevel;
             
-            state.credits = 0; 
+            const startingCredits = Math.round(getPrestigePerkLevel('start_cache') * 25000 * Math.max(1, state.prestigeLevel));
+            const startingData = Math.round(getPrestigePerkLevel('start_frag') * 50 * Math.max(1, state.prestigeLevel));
+            state.credits = startingCredits; 
+            state.dataFragments = startingData;
             state.level = 1; 
             state.xp = 0; 
             state.xpNeeded = 100; 
@@ -2323,7 +2434,7 @@
             const procBonus = 1 + (state.attributes.processing.value * 0.02);
             const cardBonus = 1 + getCardBonusMultiplier('credits');
             
-            const total = (1.0 + bonusPower) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus;
+            const total = (1.0 + bonusPower) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus * (1 + getPrestigePerkLevel('click') * 0.25);
             
             state.credits += total; 
             state.totalCredits += total;
@@ -2383,16 +2494,18 @@
             }
 
             const autoUpg = upgrades.find(u => u.type === 'autoclick');
-            if (autoUpg && autoUpg.purchased > 0) {
+            const prestigeAutoClicks = getPrestigePerkLevel('auto') * 2;
+            const autoClickCount = (autoUpg ? autoUpg.purchased : 0) + prestigeAutoClicks;
+            if (autoClickCount > 0) {
                 const upgClick = upgrades.find(x => x.type === 'click_power'); 
                 const bonusPow = upgClick ? upgClick.purchased * upgClick.value : 0;
-                const powerPerClick = (1.0 + bonusPow) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus;
+                const powerPerClick = (1.0 + bonusPow) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus * (1 + getPrestigePerkLevel('click') * 0.25);
                 
-                const acCredits = (autoUpg.purchased * 0.1) * powerPerClick;
+                const acCredits = (autoClickCount * 0.1) * powerPerClick;
                 state.credits += acCredits; 
                 state.totalCredits += acCredits;
                 
-                gainXP(0.05 * autoUpg.purchased);
+                gainXP(0.05 * autoClickCount);
             }
 
             if (breachMultiplier > 1.0) {
@@ -2420,7 +2533,31 @@
             updateUI();
         }
 
+        function getHoldBuyAttrs(type, id) {
+            return `data-hold-type="${type}" data-hold-id="${id}" onpointerdown="startMarketHoldBuy(event, '${type}', '${id}')" ontouchstart="startMarketHoldBuy(event, '${type}', '${id}')" onmousedown="startMarketHoldBuy(event, '${type}', '${id}')" onpointerup="stopMarketHoldBuy()" ontouchend="stopMarketHoldBuy()" onmouseup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" ontouchcancel="stopMarketHoldBuy()" onmouseleave="stopMarketHoldBuy()" oncontextmenu="return false"`;
+        }
+
+        function renderBreachQuickUpgrades() {
+            const panel = document.getElementById('breach-upgrade-panel');
+            if (!panel) return;
+            const quickIds = ['u_breach_amplifier', 'u_breach_timer', 'u_breach_chain', 'u_breach_farm'];
+            panel.innerHTML = quickIds.map(id => {
+                const u = upgrades.find(x => x.id === id);
+                if (!u) return '';
+                const isMax = u.purchased >= u.max;
+                const canBuy = !isMax && state.credits >= u.costCredits && state.dataFragments >= u.costData;
+                const title = id === 'u_breach_amplifier' ? '+Boost' : id === 'u_breach_timer' ? '+Tempo' : id === 'u_breach_chain' ? '+Acúmulo' : '+DF';
+                return `
+                    <button ${canBuy ? getHoldBuyAttrs('upgrade', id) : ''} id="btn-quick-breach-${id}" class="p-2 rounded-lg border text-left taptarget-glow ${isMax ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-400' : (canBuy ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-black/40 border-white/5 text-slate-600 cursor-not-allowed')}" ${canBuy ? '' : 'disabled'}>
+                        <span class="block text-[10px] font-black uppercase">${isMax ? 'MAX' : title} <span class="font-mono-cyber">${u.purchased}/${u.max}</span></span>
+                        <span class="block text-[9px] font-mono-cyber mt-1">${isMax ? 'Instalado' : `${Math.round(u.costCredits)} C$${u.costData > 0 ? ` + ${u.costData} DF` : ''}`}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
         function updatePurchaseButtons() {
+            renderBreachQuickUpgrades();
             daemons.forEach(d => { 
                 const btn = document.getElementById(`btn-buy-daemon-${d.id}`); 
                 if(btn) {
@@ -2535,7 +2672,7 @@
             const pBon = 1 + (state.attributes.processing.value * 0.02); 
             const cBon = 1 + getCardBonusMultiplier('credits');
             
-            setText('display-click-val', `+${((1.0 + bClk) * pBon * getEffectiveGlobalMultiplier() * breachMultiplier * cBon).toFixed(2)} C$/clique`);
+            setText('display-click-val', `+${((1.0 + bClk) * pBon * getEffectiveGlobalMultiplier() * breachMultiplier * cBon * (1 + getPrestigePerkLevel('click') * 0.25)).toFixed(2)} C$/clique`);
             setText('stat-passive-rate', `${(state.passiveCps * pBon * getEffectiveGlobalMultiplier() * breachMultiplier * cBon).toFixed(2)}`);
             setText('stat-passive-df-rate', `${getPassiveDataRate().toFixed(2)}`);
             state.maxEquippedCards = getMaxEquippedCards();
@@ -2546,6 +2683,7 @@
             setStyleWidth('tracker-bar', `${state.netwatchTracker}%`);
             setText('breach-bonus-display', `${getBreachBaseMultiplier().toFixed(2)}x`);
             setText('breach-duration-display', `${Math.round(getBreachDurationMs() / 1000)}s`);
+            renderBreachQuickUpgrades();
             const godToggle = document.getElementById('admin-godmode');
             if (godToggle) godToggle.checked = state.godMode;
             const oneHitToggle = document.getElementById('admin-onehit');
@@ -2685,7 +2823,7 @@
             const u = upgrades.find(x => x.type === 'bullet_damage'); 
             const b = u ? u.purchased * u.value : 0;
             
-            document.getElementById('grid-damage').innerText = `${Math.round((state.bulletDmg + b) * (1 + getCardBonusMultiplier('damage')) * (1 + getUpgradeStackValue('damage_multiplier') + getPurchasedCyberValue('damage_multiplier')))} DMG`;
+            document.getElementById('grid-damage').innerText = `${Math.round((state.bulletDmg + b) * (1 + getCardBonusMultiplier('damage')) * (1 + getUpgradeStackValue('damage_multiplier') + getPurchasedCyberValue('damage_multiplier') + (getPrestigePerkLevel('damage') * 0.15)))} DMG`;
             document.getElementById('grid-data-collected').innerText = `${runDataCollected} DF`; 
             document.getElementById('grid-xp-earned').innerText = `${Math.round(runXpEarned)} XP`;
         }
@@ -2705,7 +2843,7 @@
             }
             
             const uHp = upgrades.find(x => x.type === 'hp_regen'); 
-            const hBon = (uHp ? uHp.purchased * uHp.value : 0) + getPurchasedCyberValue('regen_bonus') + (getPrestigePerkLevel('hp') * 1.5);
+            const hBon = (uHp ? uHp.purchased * uHp.value : 0) + getPurchasedCyberValue('regen_bonus') + (getPrestigePerkLevel('hp') * 1.5) + (getPrestigePerkLevel('regen') * 0.8);
             if (hBon > 0 && player.hp < state.playerHpMax) { 
                 player.hp = Math.min(state.playerHpMax, player.hp + (hBon * 0.01) * timeS); 
                 updateGridUI(); 
@@ -2767,9 +2905,9 @@
                 if (tg) {
                     let ang = Math.atan2(tg.y - player.y, tg.x - player.x);
                     let ud = upgrades.find(u => u.type === 'bullet_damage'); 
-                    let dmg = (state.bulletDmg + (ud ? ud.purchased * ud.value : 0)) * (1 + getCardBonusMultiplier('damage')) * (1 + getUpgradeStackValue('damage_multiplier') + getPurchasedCyberValue('damage_multiplier')) * (state.oneHitKill ? 100 : 1);
+                    let dmg = (state.bulletDmg + (ud ? ud.purchased * ud.value : 0)) * (1 + getCardBonusMultiplier('damage')) * (1 + getUpgradeStackValue('damage_multiplier') + getPurchasedCyberValue('damage_multiplier') + (getPrestigePerkLevel('damage') * 0.15)) * (state.oneHitKill ? 100 : 1);
                     
-                    const critChance = Math.min(0.75, getPurchasedCyberValue('crit_chance') + getUpgradeStackValue('crit_chance'));
+                    const critChance = Math.min(0.85, getPurchasedCyberValue('crit_chance') + getUpgradeStackValue('crit_chance') + (getPrestigePerkLevel('crit') * 0.04));
                     if (Math.random() < critChance) { 
                         dmg *= (1.5 + getUpgradeStackValue('crit_damage') + getPurchasedCyberValue('crit_damage')); 
                         createExplosion(tg.x, tg.y, '#f43f5e', 8); 
@@ -2858,7 +2996,7 @@
                             
                             const dropMult = state.cardDropMultiplier === undefined ? 1 : state.cardDropMultiplier;
                             const luckMult = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
-                            const prestigeDropBonus = 1 + (getPrestigePerkLevel('luck') * 0.20) + (getPrestigePerkLevel('xp') * 0.15);
+                            const prestigeDropBonus = 1 + (getPrestigePerkLevel('luck') * 0.20) + (getPrestigePerkLevel('card_drop') * 0.12) + (getPrestigePerkLevel('xp') * 0.15);
                             const cardDropChance = Math.min(0.95, (e.isBoss ? 1.0 : 0.05 * prestigeDropBonus * dropMult * luckMult));
                             if (Math.random() < cardDropChance) { 
                                 const sc = generateRandomCard(e.isBoss ? 3 : 1, e.isBoss ? 5 : 3); 
@@ -3254,7 +3392,7 @@
         }
 
         function forceBreachReward() {
-            const reward = Math.max(25, Math.round((50 + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus')) * getDataYieldMultiplier()));
+            const reward = Math.max(25, Math.round((50 + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus') + (getPrestigePerkLevel('breach_df') * 15)) * getDataYieldMultiplier()));
             const now = Date.now();
             const activeBefore = breachMultiplier > 1.0 && breachEndTime > now;
             state.dataFragments += reward;
@@ -3281,6 +3419,53 @@
             syncAdminControlValues();
             updateUI();
             showNotification('NetWatch pausado pelo SYS_ROOT.', 'success');
+        }
+
+        function injectPrestigeTokens(v) {
+            state.prestigeTokens += Number(v) || 0;
+            renderPrestigeTab();
+            updateUI();
+            showNotification(`+${Number(v).toLocaleString('pt-BR')} Tokens HN`, 'success');
+        }
+
+        function injectPrestigeLevel(v) {
+            state.prestigeLevel += Number(v) || 0;
+            state.multiplier = 1.0 + state.prestigeLevel;
+            renderPrestigeTab();
+            updateUI();
+            showNotification(`+${Number(v).toLocaleString('pt-BR')} HN adicionados`, 'success');
+        }
+
+        function grantCardVault() {
+            for (let i = 0; i < 12; i++) {
+                addCardToInventory(generateRandomCard(3, 5), false);
+            }
+            refreshCardInventoryUI();
+            updateUI();
+            showNotification('Cofre com 12 chips épicos/lendários injetado.', 'success');
+        }
+
+        function maxPrestigePerks() {
+            prestigePerks.forEach(p => {
+                const key = p.id.replace('p_', '');
+                state.prestigePerks[key] = p.max;
+            });
+            state.prestigeTokens = Math.max(state.prestigeTokens, 0);
+            applyAttributeEffects();
+            renderPrestigeTab();
+            updateUI();
+            showNotification('Todas as perks definitivas foram maximizadas.', 'success');
+        }
+
+        function grantOverkillResources() {
+            state.credits += 1000000000000;
+            state.totalCredits += 1000000000000;
+            state.dataFragments += 10000000;
+            state.statPoints += 1000;
+            state.prestigeTokens += 25;
+            gainXP(1000000000);
+            updateUI();
+            showNotification('Pacote Overkill aplicado.', 'success');
         }
 
         function syncAdminControlValues() {
@@ -3365,8 +3550,9 @@
             for(let i=0; i<5; i++) {
                 addCardToInventory(generateRandomCard(5, 5), false); 
             }
-            renderCardsTab(); 
+            refreshCardInventoryUI(); 
             updateUI(); 
+            showNotification('+5 Chips Lendários', 'success');
         }
         function changeGameSpeed(v) { 
             state.gameSpeedMultiplier = parseFloat(v); 
@@ -3458,6 +3644,8 @@
                 clearTimeout(longPressTimer);
             }, { passive: true });
             window.addEventListener('pointerup', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
+            window.addEventListener('mouseup', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
+            window.addEventListener('blur', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
             window.addEventListener('pointercancel', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
             document.querySelectorAll('button, canvas, a, .taptarget-glow, .bottom-nav-item').forEach(el => {
                 el.addEventListener('touchstart', () => {}, { passive: true });
