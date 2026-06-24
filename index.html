@@ -186,24 +186,29 @@
         }
         @media (max-width: 767px) {
             main {
-                padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+                padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
             }
             .bottom-tabbar {
-                height: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
-                padding-top: 5px;
-                padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+                height: calc(54px + env(safe-area-inset-bottom, 0px)) !important;
+                padding-top: 4px;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
                 align-items: flex-start !important;
                 overflow: visible;
                 transform: translateZ(0);
             }
             .bottom-tabbar .bottom-nav-item {
-                min-height: 51px;
-                padding-top: 2px;
+                min-height: 46px;
+                padding-top: 0;
+                padding-bottom: 0;
                 line-height: 1;
             }
             .bottom-tabbar .bottom-nav-item i {
                 line-height: 1;
-                margin-bottom: 3px;
+                margin-bottom: 2px;
+                font-size: 1rem;
+            }
+            .bottom-tabbar .bottom-nav-item span {
+                font-size: 0.54rem;
             }
         }
     </style>
@@ -361,6 +366,16 @@
                                 <div class="flex items-center justify-between text-[11px] bg-black/40 px-3 py-2 rounded-lg border border-white/5 font-mono-cyber">
                                     <span class="text-slate-400">CHAVE: <span id="breach-status" class="text-amber-400 font-bold tracking-widest">PRONTO</span></span>
                                     <span class="text-slate-500">TEMPO: <span id="breach-timer" class="text-slate-200 font-bold">0s</span></span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-[10px] font-mono-cyber">
+                                    <div class="bg-black/30 border border-amber-500/10 rounded-lg px-3 py-2 flex justify-between gap-2">
+                                        <span class="text-slate-500 uppercase">Boost Upgrade:</span>
+                                        <span id="breach-bonus-display" class="text-amber-400 font-black">5.00x</span>
+                                    </div>
+                                    <div class="bg-black/30 border border-amber-500/10 rounded-lg px-3 py-2 flex justify-between gap-2">
+                                        <span class="text-slate-500 uppercase">Tempo/combo:</span>
+                                        <span id="breach-duration-display" class="text-amber-400 font-black">45s</span>
+                                    </div>
                                 </div>
                                 <div class="grid grid-cols-4 md:grid-cols-6 gap-2" id="breach-grid"></div>
                             </div>
@@ -639,8 +654,13 @@
                             <h3 class="text-xs font-black text-red-400 uppercase tracking-widest border-b border-white/10 pb-2">INJETORES</h3>
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="injectCredits(1000000)" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-400 font-bold text-xs uppercase taptarget-glow">+1M C$</button>
+                                <button onclick="injectCredits(1000000000)" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-300 font-bold text-xs uppercase taptarget-glow">+1B C$</button>
                                 <button onclick="injectData(10000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-400 font-bold text-xs uppercase taptarget-glow">+10K DF</button>
-                                <button onclick="injectXP(5000)" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase taptarget-glow col-span-2">+5000 XP</button>
+                                <button onclick="injectData(1000000)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-300 font-bold text-xs uppercase taptarget-glow">+1M DF</button>
+                                <button onclick="injectXP(5000)" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase taptarget-glow">+5K XP</button>
+                                <button onclick="injectXP(250000)" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-300 font-bold text-xs uppercase taptarget-glow">+250K XP</button>
+                                <button onclick="injectXP(5000000)" class="p-3 rounded-lg bg-black/40 border border-orange-500/30 text-orange-300 font-bold text-xs uppercase taptarget-glow">+5M XP</button>
+                                <button onclick="injectStatPoints(250)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-300 font-bold text-xs uppercase taptarget-glow">+250 Pontos</button>
                                 <button onclick="injectLegendaryCards()" class="p-3 rounded-lg bg-black/40 border border-yellow-500/30 text-yellow-400 font-bold text-xs uppercase taptarget-glow col-span-2">+5 Chips Lendários</button>
                                 <button onclick="saveGame(true)" class="p-3 rounded-lg bg-emerald-950 border border-emerald-500/40 text-emerald-400 font-bold text-xs uppercase taptarget-glow col-span-1">Salvar Jogo</button>
                                 <button onclick="wipeSaveGame()" class="p-3 rounded-lg bg-rose-950 border border-rose-500/40 text-rose-400 font-bold text-xs uppercase taptarget-glow col-span-1">Wipe Save</button>
@@ -788,7 +808,7 @@
     </div>
 
     <!-- BOTTOM TAB BAR (Navegação Mobile App-like) -->
-    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[66px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
+    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[54px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
         <button onclick="switchTab('tab-dash')" id="mobile-btn-tab-dash" class="bottom-nav-item active relative">
             <i class="fa-solid fa-solar-panel"></i>
             <span>Cortex</span>
@@ -985,7 +1005,7 @@
             
             prestigeLevel: 0, 
             prestigeTokens: 0,
-            prestigePerks: { fire: 0, hp: 0, xp: 0 }
+            prestigePerks: { fire: 0, hp: 0, xp: 0, data: 0, luck: 0, daemon: 0, slots: 0, netwatch: 0, breach: 0, breach_time: 0, breach_chain: 0 }
         };
 
         const daemons = [
@@ -1036,6 +1056,9 @@
             { id: 'u_repair_forge', name: 'Forja de Reparos', desc: '+10% chance efetiva de reparo.', costCredits: 900000, costData: 1200, value: 0.10, purchased: 0, max: 8, type: 'repair_bonus' },
             { id: 'u_slot_expander', name: 'Expansor de Slots', desc: '+1 slot de chip a cada 2 níveis.', costCredits: 1400000, costData: 1600, value: 1, purchased: 0, max: 6, type: 'max_card_slots' },
             { id: 'u_breach_farm', name: 'Breach Harvester', desc: '+6 DF ao concluir Breach.', costCredits: 2600000, costData: 2200, value: 6, purchased: 0, max: 12, type: 'breach_df_bonus' },
+            { id: 'u_breach_amplifier', name: 'Amplificador Breach', desc: '+0.35x no multiplicador do Breach por nível.', costCredits: 3200000, costData: 2600, value: 0.35, purchased: 0, max: 18, type: 'breach_multiplier' },
+            { id: 'u_breach_timer', name: 'Cronômetro Breach', desc: '+6s de duração acumulável ao concluir combinação.', costCredits: 3800000, costData: 3000, value: 6, purchased: 0, max: 20, type: 'breach_duration' },
+            { id: 'u_breach_chain', name: 'Cadeia Breach', desc: '+0.15x extra quando concluir outro Breach ainda ativo.', costCredits: 5200000, costData: 3600, value: 0.15, purchased: 0, max: 18, type: 'breach_stack_bonus' },
             { id: 'u_quantum_barrel', name: 'Cano Quântico', desc: '+6% dano final dos disparos.', costCredits: 4800000, costData: 3000, value: 0.06, purchased: 0, max: 15, type: 'damage_multiplier' },
             { id: 'u_singularity_core', name: 'Core de Singularidade', desc: '+0.12x multiplicador geral.', costCredits: 15000000, costData: 6000, value: 0.12, purchased: 0, max: 15, type: 'global_multiplier' }
         ];
@@ -1058,6 +1081,9 @@
             { id: 'c_blackwall_claw', name: 'Garra Blackwall', desc: '+22% dano final.', costCredits: 12000000, costData: 8500, purchased: false, type: 'damage_multiplier', value: 0.22, icon: 'fa-hand-fist', color: 'text-red-400' },
             { id: 'c_crit_spider', name: 'Aranha Crítica', desc: '+35% dano crítico.', costCredits: 18500000, costData: 11000, purchased: false, type: 'crit_damage', value: 0.35, icon: 'fa-spider', color: 'text-rose-300' },
             { id: 'c_breach_stomach', name: 'Estômago Breach', desc: '+18 DF ao concluir Breach.', costCredits: 28000000, costData: 15000, purchased: false, type: 'breach_df_bonus', value: 18, icon: 'fa-puzzle-piece', color: 'text-amber-300' },
+            { id: 'c_breach_cerebellum', name: 'Cerebelo Breach', desc: '+0.75x multiplicador do Breach.', costCredits: 34000000, costData: 17500, purchased: false, type: 'breach_multiplier', value: 0.75, icon: 'fa-brain', color: 'text-amber-200' },
+            { id: 'c_chrono_lung', name: 'Pulmão Cronal', desc: '+18s de tempo acumulável no Breach.', costCredits: 52000000, costData: 22000, purchased: false, type: 'breach_duration', value: 18, icon: 'fa-hourglass-half', color: 'text-orange-300' },
+            { id: 'c_chain_synapse', name: 'Sinapse Encadeada', desc: '+0.50x em combos de Breach ainda ativos.', costCredits: 72000000, costData: 28500, purchased: false, type: 'breach_stack_bonus', value: 0.50, icon: 'fa-link', color: 'text-yellow-300' },
             { id: 'c_grid_liver', name: 'Fígado Grid', desc: '+2.5 HP/s na Arena.', costCredits: 42000000, costData: 19000, purchased: false, type: 'regen_bonus', value: 2.5, icon: 'fa-kit-medical', color: 'text-emerald-300' },
             { id: 'c_daemon_gland', name: 'Glândula Daemon', desc: '+0.08x multiplicador geral.', costCredits: 66000000, costData: 24000, purchased: false, type: 'global_multiplier', value: 0.08, icon: 'fa-dna', color: 'text-purple-300' },
             { id: 'c_quantum_rib', name: 'Costela Quântica', desc: '+120 HP máximo.', costCredits: 95000000, costData: 32000, purchased: false, type: 'hp_bonus', value: 120, icon: 'fa-bone', color: 'text-blue-300' },
@@ -1068,7 +1094,15 @@
         const prestigePerks = [
             { id: 'p_fire', name: 'Overdrive Core', desc: '-8% intervalo tiros/lvl.', purchased: 0, max: 10, icon: 'fa-fire' },
             { id: 'p_hp', name: 'Buffer Antimatéria', desc: '+25 HP Máximo inicial/lvl.', purchased: 0, max: 10, icon: 'fa-shield-halved' },
-            { id: 'p_xp', name: 'Injetor Dimensional', desc: '+30% multi XP/lvl.', purchased: 0, max: 10, icon: 'fa-circle-nodes' }
+            { id: 'p_xp', name: 'Injetor Dimensional', desc: '+30% multi XP/lvl.', purchased: 0, max: 10, icon: 'fa-circle-nodes' },
+            { id: 'p_data', name: 'Garimpo Eterno', desc: '+25% ganhos de DF/lvl.', purchased: 0, max: 12, icon: 'fa-gem' },
+            { id: 'p_luck', name: 'Probabilidade Fantasma', desc: '+20% sorte/drop/lvl.', purchased: 0, max: 10, icon: 'fa-dice-d20' },
+            { id: 'p_daemon', name: 'Colmeia Persistente', desc: '+15% C$/s passivo/lvl.', purchased: 0, max: 10, icon: 'fa-network-wired' },
+            { id: 'p_slots', name: 'Deck Sem Fundo', desc: '+1 slot de chip permanente/lvl.', purchased: 0, max: 6, icon: 'fa-sd-card' },
+            { id: 'p_netwatch', name: 'Sombra Permanente', desc: '-8% pressão NetWatch/lvl.', purchased: 0, max: 10, icon: 'fa-user-secret' },
+            { id: 'p_breach', name: 'Breach Ascendente', desc: '+0.40x multiplicador Breach/lvl.', purchased: 0, max: 12, icon: 'fa-puzzle-piece' },
+            { id: 'p_breach_time', name: 'Relógio Abissal', desc: '+10s acumuláveis no Breach/lvl.', purchased: 0, max: 12, icon: 'fa-hourglass-half' },
+            { id: 'p_breach_chain', name: 'Sequência Infinita', desc: '+0.25x em Breach ativo/lvl.', purchased: 0, max: 10, icon: 'fa-link' }
         ];
 
         // ================= SISTEMA DE SAVE / LOAD =================
@@ -1083,6 +1117,31 @@
         ];
 
 
+
+        daemons.forEach(d => { d.baseCost = d.cost; });
+        upgrades.forEach(u => { u.baseCostCredits = u.costCredits; u.baseCostData = u.costData; });
+
+        function getPrestigePerkLevel(key) {
+            return Number((state.prestigePerks && state.prestigePerks[key]) || 0);
+        }
+
+        function getPrestigePerkMax(key) {
+            const perk = prestigePerks.find(p => p.id.replace('p_', '') === key);
+            return perk ? perk.max : 10;
+        }
+
+        function getBreachBaseMultiplier() {
+            return 5.0 + getUpgradeStackValue('breach_multiplier') + getPurchasedCyberValue('breach_multiplier') + (getPrestigePerkLevel('breach') * 0.40);
+        }
+
+        function getBreachDurationMs() {
+            const bonusSeconds = getUpgradeStackValue('breach_duration') + getPurchasedCyberValue('breach_duration') + (getPrestigePerkLevel('breach_time') * 10);
+            return Math.max(15000, Math.round((45 + bonusSeconds) * 1000));
+        }
+
+        function getBreachStackBonus() {
+            return getUpgradeStackValue('breach_stack_bonus') + getPurchasedCyberValue('breach_stack_bonus') + (getPrestigePerkLevel('breach_chain') * 0.25);
+        }
 
         function getUpgradeStackValue(type) {
             return upgrades
@@ -1106,7 +1165,8 @@
 
         function getDataYieldMultiplier() {
             const crown = hasCyberware('void_crown') ? getPurchasedCyberValue('void_crown') : 0;
-            return Math.max(0.1, 1 + getUpgradeStackValue('data_yield') + getPurchasedCyberValue('data_multiplier') + getCardBonusMultiplier('data') + crown);
+            const prestigeData = getPrestigePerkLevel('data') * 0.25;
+            return Math.max(0.1, 1 + getUpgradeStackValue('data_yield') + getPurchasedCyberValue('data_multiplier') + getCardBonusMultiplier('data') + crown + prestigeData);
         }
 
         function getPassiveDataRate() {
@@ -1117,7 +1177,7 @@
         }
 
         function getMaxEquippedCards() {
-            return 5 + Math.floor(getUpgradeStackValue('max_card_slots') / 2);
+            return 5 + Math.floor(getUpgradeStackValue('max_card_slots') / 2) + getPrestigePerkLevel('slots');
         }
 
         function normalizeStateDefaults() {
@@ -1178,8 +1238,14 @@
                 state.activeSkillsUnlocked = { dash: true, emp: false, overcharge: false };
             }
             if (!state.prestigePerks) {
-                state.prestigePerks = { fire: 0, hp: 0, xp: 0 };
+                state.prestigePerks = {};
             }
+            prestigePerks.forEach(p => {
+                const key = p.id.replace('p_', '');
+                if (state.prestigePerks[key] === undefined || state.prestigePerks[key] === null || Number.isNaN(Number(state.prestigePerks[key]))) {
+                    state.prestigePerks[key] = 0;
+                }
+            });
             if (!Array.isArray(state.cards)) {
                 state.cards = [];
             }
@@ -1510,7 +1576,7 @@
             const xpBoosterUpgrade = upgrades.find(u => u.type === 'xp_gain');
             const boosterPct = xpBoosterUpgrade ? (1 + (xpBoosterUpgrade.purchased * xpBoosterUpgrade.value)) : 1;
             const cardBonus = 1 + getCardBonusMultiplier('xp');
-            const prestigeXpBonus = 1 + (state.prestigePerks.xp * 0.3);
+            const prestigeXpBonus = 1 + (getPrestigePerkLevel('xp') * 0.3);
             const crownXpBonus = 1 + (hasCyberware('void_crown') ? getPurchasedCyberValue('void_crown') : 0);
             
             const actualGain = amount * boosterPct * state.xpMultiplier * cardBonus * prestigeXpBonus * crownXpBonus;
@@ -1588,7 +1654,7 @@
         function applyAttributeEffects() {
             // Frequência de fogo (Diminishing return)
             const freqLevel = state.attributes.firefrequency.value;
-            const prestigeFireBonus = 1 - (state.prestigePerks.fire * 0.08);
+            const prestigeFireBonus = Math.max(0.20, 1 - (getPrestigePerkLevel('fire') * 0.08));
             const coreFireBonus = Math.max(0.35, 1 - getUpgradeStackValue('fire_rate_core'));
             const cyberFireBonus = Math.max(0.55, 1 - getPurchasedCyberValue('fire_rate_reduction'));
             state.fireRate = Math.max(38, 350 * Math.pow(0.97, freqLevel) * prestigeFireBonus * coreFireBonus * cyberFireBonus);
@@ -1596,7 +1662,7 @@
             // Shielding (+10 HP per level infinitely)
             const shieldingLevel = state.attributes.shielding.value;
             const cardHpBonus = 1 + getCardBonusMultiplier('shield');
-            const prestigeHpBonus = state.prestigePerks.hp * 25;
+            const prestigeHpBonus = getPrestigePerkLevel('hp') * 25;
             state.playerHpMax = Math.round((100 + (shieldingLevel * 10) + getPurchasedCyberValue('hp_bonus')) * cardHpBonus) + prestigeHpBonus;
             
             // Overdrive
@@ -1692,13 +1758,24 @@
             
             if (breachCombination[breachSelected.length - 1] === hexValue) {
                 if (breachSelected.length === breachCombination.length) {
-                    breachMultiplier = 5.0; 
-                    breachEndTime = Date.now() + 45000; 
+                    const now = Date.now();
+                    const activeBefore = breachMultiplier > 1.0 && breachEndTime > now;
+                    const baseMultiplier = getBreachBaseMultiplier();
+                    const stackBonus = getBreachStackBonus();
+                    const durationMs = getBreachDurationMs();
+
+                    if (activeBefore) {
+                        breachMultiplier = Math.min(25, Math.max(baseMultiplier, breachMultiplier + stackBonus));
+                        breachEndTime += durationMs;
+                    } else {
+                        breachMultiplier = baseMultiplier;
+                        breachEndTime = now + durationMs;
+                    }
                     
                     const breachDfReward = Math.max(1, Math.round((8 + Math.floor(state.level / 3) + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus')) * getDataYieldMultiplier()));
                     state.dataFragments += breachDfReward;
                     playSynthSound('powerup'); 
-                    showNotification(`BREACH CONCLUÍDO! 5.0x C$ + ${breachDfReward} DF`, "success");
+                    showNotification(`BREACH CONCLUÍDO! ${breachMultiplier.toFixed(2)}x C$ + ${breachDfReward} DF`, "success");
                     updateUI();
                     
                     setTimeout(generateBreachProtocol, 1500);
@@ -1739,27 +1816,81 @@
                         </div>
                         <div class="flex justify-between items-center pt-1">
                             <div class="flex flex-col"><span class="text-[9px] text-slate-500 font-bold uppercase">Rendimento</span><span class="text-emerald-400 font-bold text-xs font-mono-cyber">${(d.count*d.baseCps).toFixed(1)} C$/s</span>${d.dataCps ? `<span class="text-fuchsia-400 font-bold text-xs font-mono-cyber">${(d.count*d.dataCps).toFixed(2)} DF/s</span>` : ''}</div>
-                            <button onclick="buyDaemon('${d.id}')" id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
+                            <button onpointerdown="startMarketHoldBuy(event, 'daemon', '${d.id}')" onpointerup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" oncontextmenu="return false" id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function buyDaemon(id) {
+        function buyDaemon(id, silent = false, deferRender = false) {
             const d = daemons.find(x => x.id === id);
-            if (!d || state.credits < d.cost) return;
+            if (!d || state.credits < d.cost) return false;
             
             state.credits -= d.cost; 
             d.count++; 
             d.cost *= 1.15;
             
             recalculatePassiveCps(); 
-            renderDaemons(); 
+            if (!deferRender) {
+                renderDaemons();
+            }
             updateUI();
             
-            playSynthSound('click'); 
-            showNotification(`Adquirido: ${d.name}`, 'success');
+            if (!silent) {
+                playSynthSound('click'); 
+                showNotification(`Adquirido: ${d.name}`, 'success');
+            }
+            return true;
+        }
+
+        let marketHoldTimer = null;
+        let marketHoldRepeater = null;
+        let marketHoldType = null;
+        let marketHoldId = null;
+        let marketHoldActive = false;
+
+        function executeMarketPurchase(type, id, silent = false, deferRender = false) {
+            if (type === 'daemon') return buyDaemon(id, silent, deferRender);
+            if (type === 'upgrade') return buyUpgrade(id, silent, deferRender);
+            return false;
+        }
+
+        function startMarketHoldBuy(event, type, id) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            stopMarketHoldBuy();
+            marketHoldType = type;
+            marketHoldId = id;
+            marketHoldActive = true;
+
+            const firstBuy = executeMarketPurchase(type, id, false, true);
+            if (!firstBuy) return;
+
+            marketHoldTimer = setTimeout(() => {
+                marketHoldRepeater = setInterval(() => {
+                    const bought = executeMarketPurchase(marketHoldType, marketHoldId, true, true);
+                    if (!bought) stopMarketHoldBuy();
+                }, 115);
+            }, 260);
+        }
+
+        function stopMarketHoldBuy() {
+            const shouldRefreshMarket = marketHoldActive;
+            if (marketHoldTimer) clearTimeout(marketHoldTimer);
+            if (marketHoldRepeater) clearInterval(marketHoldRepeater);
+            marketHoldTimer = null;
+            marketHoldRepeater = null;
+            marketHoldType = null;
+            marketHoldId = null;
+            marketHoldActive = false;
+            if (shouldRefreshMarket) {
+                renderDaemons();
+                renderUpgrades();
+                updateUI();
+            }
         }
 
         function recalculatePassiveCps() {
@@ -1771,7 +1902,7 @@
                 total += dm.count * dm.baseCps; 
             });
             
-            state.passiveCps = total * coolBonus;
+            state.passiveCps = total * coolBonus * (1 + (getPrestigePerkLevel('daemon') * 0.15));
         }
 
         function renderUpgrades() {
@@ -1799,16 +1930,16 @@
                                 <span class="text-slate-500">CUSTO:</span>
                                 <span class="text-amber-400">${isMax?'---':`${u.costCredits.toFixed(0)} C$ ${u.costData>0?`+ ${u.costData} DF`:''}`}</span>
                             </div>
-                            <button onclick="buyUpgrade('${u.id}')" id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
+                            <button onpointerdown="startMarketHoldBuy(event, 'upgrade', '${u.id}')" onpointerup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" oncontextmenu="return false" id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function buyUpgrade(id) {
+        function buyUpgrade(id, silent = false, deferRender = false) {
             const u = upgrades.find(x => x.id === id);
-            if (!u || u.purchased >= u.max || state.credits < u.costCredits || state.dataFragments < u.costData) return;
+            if (!u || u.purchased >= u.max || state.credits < u.costCredits || state.dataFragments < u.costData) return false;
             
             state.credits -= u.costCredits; 
             state.dataFragments -= u.costData; 
@@ -1817,14 +1948,19 @@
             u.costCredits *= 1.45; 
             u.costData = Math.round(u.costData * 1.35);
             
-            playSynthSound('powerup'); 
             recalculatePassiveCps(); 
             applyAttributeEffects(); 
             
-            renderUpgrades(); 
+            if (!deferRender) {
+                renderUpgrades();
+            }
             updateUI();
             
-            showNotification(`Melhoria aplicada!`, 'success');
+            if (!silent) {
+                playSynthSound('powerup'); 
+                showNotification(`Melhoria aplicada!`, 'success');
+            }
+            return true;
         }
 
         function renderImplants() {
@@ -1927,16 +2063,27 @@
             return state.cards.filter(c => c.equipped && c.type === type).reduce((sum, c) => sum + c.value, 0);
         }
 
+        function addCardToInventory(card, shouldRender = true) {
+            if (!card) return null;
+            if (!Array.isArray(state.cards)) state.cards = [];
+            state.cards.push(card);
+            if (shouldRender) {
+                renderCardsTab();
+                updateAdminSummary();
+            }
+            return card;
+        }
+
         function buyCardPack(currency) {
             initAudio();
             if (currency === 'credits') {
                 if (state.credits < 5000) return showNotification("C$ insuficientes!", "error");
                 state.credits -= 5000; 
-                state.cards.push(generateRandomCard(1, 3));
+                addCardToInventory(generateRandomCard(1, 3));
             } else {
                 if (state.dataFragments < 50) return showNotification("DF insuficientes!", "error");
                 state.dataFragments -= 50; 
-                state.cards.push(generateRandomCard(2, 5));
+                addCardToInventory(generateRandomCard(2, 5));
             }
             playSynthSound('powerup'); 
             renderCardsTab(); 
@@ -1962,7 +2109,7 @@
                     }
                     
                     const newCard = generateRandomCard(stars + 1, stars + 1);
-                    state.cards.push(newCard);
+                    addCardToInventory(newCard);
                     
                     playSynthSound('levelup'); 
                     renderCardsTab(); 
@@ -2090,7 +2237,8 @@
             container.innerHTML = '';
             
             prestigePerks.forEach(p => {
-                let v = state.prestigePerks[p.id.replace('p_', '')] || 0;
+                const perkKey = p.id.replace('p_', '');
+                let v = getPrestigePerkLevel(perkKey);
                 container.innerHTML += `
                     <div class="bg-black/40 p-4 rounded-xl border ${v > 0 ? 'border-amber-500/40' : 'border-white/5'} flex justify-between items-center text-sm">
                         <div class="flex-1 pr-2">
@@ -2108,8 +2256,9 @@
 
         function upgradePrestigePerk(id) {
             const key = id.replace('p_', '');
-            if (state.prestigeTokens > 0 && state.prestigePerks[key] < 10) {
-                state.prestigePerks[key]++; 
+            const max = getPrestigePerkMax(key);
+            if (state.prestigeTokens > 0 && getPrestigePerkLevel(key) < max) {
+                state.prestigePerks[key] = getPrestigePerkLevel(key) + 1; 
                 state.prestigeTokens--;
                 playSynthSound('powerup'); 
                 applyAttributeEffects(); 
@@ -2138,13 +2287,13 @@
             
             daemons.forEach(d => { 
                 d.count = 0; 
-                d.cost = [10, 75, 600, 4200, 30000, 250000, 1800000, 12000000, 95000000, 800000000][daemons.indexOf(d)]; 
+                d.cost = d.baseCost || d.cost; 
             });
             
             upgrades.forEach(u => { 
                 u.purchased = 0; 
-                u.costCredits = [120, 50, 350, 1000, 2500, 6000, 15000, 40000][upgrades.indexOf(u)]; 
-                u.costData = [5, 0, 15, 35, 60, 90, 140, 220][upgrades.indexOf(u)]; 
+                u.costCredits = u.baseCostCredits || u.costCredits; 
+                u.costData = (u.baseCostData !== undefined ? u.baseCostData : u.costData); 
             });
             
             state.multiplier = 1.0 + state.prestigeLevel;
@@ -2259,7 +2408,8 @@
             }
 
             const stealthUpg = upgrades.find(u => u.type === 'stealth'); 
-            const stealthFactor = Math.max(0.05, (stealthUpg ? (1 - (stealthUpg.purchased * stealthUpg.value)) : 1) * (1 - getPurchasedCyberValue('stealth_matrix')));
+            const prestigeStealth = Math.max(0.10, 1 - (getPrestigePerkLevel('netwatch') * 0.08));
+            const stealthFactor = Math.max(0.05, (stealthUpg ? (1 - (stealthUpg.purchased * stealthUpg.value)) : 1) * (1 - getPurchasedCyberValue('stealth_matrix')) * prestigeStealth);
             
             const netwatchRate = (state.netwatchRateMultiplier === undefined ? 1 : state.netwatchRateMultiplier);
             if (netwatchRate > 0 && Math.random() < 0.03 * stealthFactor * netwatchRate && state.netwatchTracker < 100) {
@@ -2375,7 +2525,7 @@
             
             const uXp = upgrades.find(u => u.type === 'xp_gain'); 
             const boostXp = uXp ? (1 + (uXp.purchased * uXp.value)) : 1;
-            const actualXpClick = 0.5 * boostXp * state.xpMultiplier * (1 + getCardBonusMultiplier('xp')) * (1 + (state.prestigePerks.xp * 0.3));
+            const actualXpClick = 0.5 * boostXp * state.xpMultiplier * (1 + getCardBonusMultiplier('xp')) * (1 + (getPrestigePerkLevel('xp') * 0.3));
             
             const xpDisplay = document.getElementById('display-xp-click'); 
             if (xpDisplay) xpDisplay.innerText = `+${actualXpClick.toFixed(2)} XP/clique`;
@@ -2394,6 +2544,8 @@
             setText('stat-ice-max', `${state.playerHpMax} HP`);
             setText('tracker-pct', `${Math.round(state.netwatchTracker)}%`);
             setStyleWidth('tracker-bar', `${state.netwatchTracker}%`);
+            setText('breach-bonus-display', `${getBreachBaseMultiplier().toFixed(2)}x`);
+            setText('breach-duration-display', `${Math.round(getBreachDurationMs() / 1000)}s`);
             const godToggle = document.getElementById('admin-godmode');
             if (godToggle) godToggle.checked = state.godMode;
             const oneHitToggle = document.getElementById('admin-onehit');
@@ -2553,7 +2705,7 @@
             }
             
             const uHp = upgrades.find(x => x.type === 'hp_regen'); 
-            const hBon = (uHp ? uHp.purchased * uHp.value : 0) + getPurchasedCyberValue('regen_bonus') + (state.prestigePerks.hp * 1.5);
+            const hBon = (uHp ? uHp.purchased * uHp.value : 0) + getPurchasedCyberValue('regen_bonus') + (getPrestigePerkLevel('hp') * 1.5);
             if (hBon > 0 && player.hp < state.playerHpMax) { 
                 player.hp = Math.min(state.playerHpMax, player.hp + (hBon * 0.01) * timeS); 
                 updateGridUI(); 
@@ -2706,10 +2858,11 @@
                             
                             const dropMult = state.cardDropMultiplier === undefined ? 1 : state.cardDropMultiplier;
                             const luckMult = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
-                            const cardDropChance = Math.min(0.95, (e.isBoss ? 1.0 : 0.05 * (1 + (state.prestigePerks.xp * 0.15)) * dropMult * luckMult));
+                            const prestigeDropBonus = 1 + (getPrestigePerkLevel('luck') * 0.20) + (getPrestigePerkLevel('xp') * 0.15);
+                            const cardDropChance = Math.min(0.95, (e.isBoss ? 1.0 : 0.05 * prestigeDropBonus * dropMult * luckMult));
                             if (Math.random() < cardDropChance) { 
                                 const sc = generateRandomCard(e.isBoss ? 3 : 1, e.isBoss ? 5 : 3); 
-                                state.cards.push(sc); 
+                                addCardToInventory(sc); 
                                 showNotification(`Chip Localizado: ${sc.name}`, "success"); 
                             }
                             
@@ -2981,7 +3134,8 @@
         function giveStarterPack() {
             state.credits += 50000;
             state.dataFragments += 500;
-            for (let i = 0; i < 3; i++) state.cards.push(generateRandomCard(2, 4));
+            for (let i = 0; i < 3; i++) addCardToInventory(generateRandomCard(2, 4), false);
+            renderCardsTab();
             renderCardsTab();
             updateUI();
             showNotification('Pack de teste injetado.', 'success');
@@ -3101,11 +3255,18 @@
 
         function forceBreachReward() {
             const reward = Math.max(25, Math.round((50 + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus')) * getDataYieldMultiplier()));
+            const now = Date.now();
+            const activeBefore = breachMultiplier > 1.0 && breachEndTime > now;
             state.dataFragments += reward;
-            breachMultiplier = 5.0;
-            breachEndTime = Date.now() + 45000;
+            if (activeBefore) {
+                breachMultiplier = Math.min(25, Math.max(getBreachBaseMultiplier(), breachMultiplier + getBreachStackBonus()));
+                breachEndTime += getBreachDurationMs();
+            } else {
+                breachMultiplier = getBreachBaseMultiplier();
+                breachEndTime = now + getBreachDurationMs();
+            }
             updateUI();
-            showNotification(`Breach forçado: +${reward} DF`, 'success');
+            showNotification(`Breach forçado: +${reward} DF / ${breachMultiplier.toFixed(2)}x`, 'success');
         }
 
         function cloneArenaEnemies() {
@@ -3190,19 +3351,19 @@
         function injectCredits(v) { 
             state.credits += v; 
             updateUI(); 
-            showNotification(`+${v} C$ injetados`, 'success');
+            showNotification(`+${Number(v).toLocaleString('pt-BR')} C$ injetados`, 'success');
         }
         function injectData(v) { 
             state.dataFragments += v; 
             updateUI(); 
-            showNotification(`+${v} DF injetados`, 'success');
+            showNotification(`+${Number(v).toLocaleString('pt-BR')} DF injetados`, 'success');
         }
         function injectXP(v) { 
             gainXP(v); 
         }
         function injectLegendaryCards() { 
             for(let i=0; i<5; i++) {
-                state.cards.push(generateRandomCard(5, 5)); 
+                addCardToInventory(generateRandomCard(5, 5), false); 
             }
             renderCardsTab(); 
             updateUI(); 
@@ -3293,8 +3454,11 @@
             }, { passive: true });
             document.addEventListener('touchend', () => {
                 stopAttributeAllocationHold();
+                stopMarketHoldBuy();
                 clearTimeout(longPressTimer);
             }, { passive: true });
+            window.addEventListener('pointerup', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
+            window.addEventListener('pointercancel', () => { stopAttributeAllocationHold(); stopMarketHoldBuy(); }, { passive: true });
             document.querySelectorAll('button, canvas, a, .taptarget-glow, .bottom-nav-item').forEach(el => {
                 el.addEventListener('touchstart', () => {}, { passive: true });
             });
