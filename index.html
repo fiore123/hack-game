@@ -156,6 +156,56 @@
             background: #ef4444;
             box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
         }
+
+
+        /* Ajustes PWA iOS: visual de app nativo e sem zoom/lupa no toque longo */
+        html, body, button, canvas, input, textarea, select, a, div, span, i {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body {
+            overscroll-behavior: none;
+            -webkit-text-size-adjust: 100%;
+        }
+        button, a, canvas, img, svg {
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+        }
+        button, .taptarget-glow, .bottom-nav-item, #game-canvas, #btn-clicker {
+            touch-action: manipulation;
+        }
+        #game-canvas {
+            touch-action: none;
+        }
+        textarea, input[type="text"], input[type="number"] {
+            -webkit-user-select: text;
+            user-select: text;
+            -webkit-touch-callout: default;
+        }
+        @media (max-width: 767px) {
+            main {
+                padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            .bottom-tabbar {
+                height: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+                padding-top: 10px;
+                padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+                align-items: flex-start !important;
+                overflow: visible;
+                transform: translateZ(0);
+            }
+            .bottom-tabbar .bottom-nav-item {
+                min-height: 62px;
+                padding-top: 6px;
+                line-height: 1;
+            }
+            .bottom-tabbar .bottom-nav-item i {
+                line-height: 1;
+                margin-bottom: 5px;
+            }
+        }
     </style>
 </head>
 <body class="crt-scanlines bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden">
@@ -620,6 +670,62 @@
                             </div>
                         </div>
 
+                        <div class="glass-panel p-5 flex flex-col gap-4 border border-red-500/20 lg:col-span-1">
+                            <h3 class="text-xs font-black text-red-400 uppercase tracking-widest border-b border-white/10 pb-2">BALANCEAMENTO AO VIVO</h3>
+                            <div class="flex flex-col gap-4 text-xs font-mono-cyber">
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>SPAWN MONSTROS:</span>
+                                        <span id="slider-spawnrate-val" class="text-red-400 font-bold">1200ms</span>
+                                    </div>
+                                    <input type="range" id="slider-spawnrate" min="250" max="3000" step="50" value="1200" oninput="changeEnemySpawnRate(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-red-500">
+                                    <span class="text-[9px] text-slate-600 block mt-1">Menor valor = arena mais caótica.</span>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>SORTE GLOBAL:</span>
+                                        <span id="slider-luck-val" class="text-yellow-400 font-bold">1.00x</span>
+                                    </div>
+                                    <input type="range" id="slider-luck" min="0.25" max="5" step="0.25" value="1" oninput="changeLuckMultiplier(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-yellow-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>DROP CHIPS:</span>
+                                        <span id="slider-carddrop-val" class="text-fuchsia-400 font-bold">1.00x</span>
+                                    </div>
+                                    <input type="range" id="slider-carddrop" min="0" max="10" step="0.25" value="1" oninput="changeCardDropMultiplier(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-fuchsia-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>REPAROS / LOOT:</span>
+                                        <span id="slider-repairdrop-val" class="text-cyan-400 font-bold">1.00x</span>
+                                    </div>
+                                    <input type="range" id="slider-repairdrop" min="0" max="5" step="0.25" value="1" oninput="changeRepairDropMultiplier(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-cyan-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>CHANCE BOSS:</span>
+                                        <span id="slider-bosschance-val" class="text-amber-400 font-bold">6%</span>
+                                    </div>
+                                    <input type="range" id="slider-bosschance" min="0" max="0.35" step="0.01" value="0.06" oninput="changeBossChance(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-amber-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>DIFICULDADE:</span>
+                                        <span id="slider-difficulty-val" class="text-rose-400 font-bold">1.00x</span>
+                                    </div>
+                                    <input type="range" id="slider-difficulty" min="0.25" max="4" step="0.25" value="1" oninput="changeEnemyDifficulty(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-rose-500">
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-2 text-slate-400">
+                                        <span>NETWATCH:</span>
+                                        <span id="slider-netwatch-val" class="text-slate-200 font-bold">1.00x</span>
+                                    </div>
+                                    <input type="range" id="slider-netwatch" min="0" max="4" step="0.25" value="1" oninput="changeNetwatchRate(this.value)" class="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-slate-400">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="glass-panel p-5 flex flex-col gap-4 border border-red-500/20">
                             <h3 class="text-xs font-black text-red-400 uppercase tracking-widest border-b border-white/10 pb-2">MONITORAMENTO</h3>
                             <div class="grid grid-cols-2 gap-2 text-xs">
@@ -649,6 +755,11 @@
                                 <button onclick="unlockAllCyberware()" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-400 font-bold text-xs uppercase taptarget-glow col-span-2">Liberar Cyberware</button>
                                 <button onclick="maxAllUpgrades()" class="p-3 rounded-lg bg-black/40 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase taptarget-glow col-span-2">Max Upgrades</button>
                                 <button onclick="resetRuntimeArena()" class="p-3 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 font-bold text-xs uppercase taptarget-glow col-span-2">Resetar Arena</button>
+                                <button onclick="spawnAdminEnemyWave()" class="p-3 rounded-lg bg-black/40 border border-rose-500/30 text-rose-400 font-bold text-xs uppercase taptarget-glow">+10 Monstros</button>
+                                <button onclick="spawnAdminBoss()" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-400 font-bold text-xs uppercase taptarget-glow">Boss Agora</button>
+                                <button onclick="healPlayerFull()" class="p-3 rounded-lg bg-black/40 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase taptarget-glow">Full HP</button>
+                                <button onclick="clearNetwatch()" class="p-3 rounded-lg bg-black/40 border border-slate-500/30 text-slate-300 font-bold text-xs uppercase taptarget-glow">Limpar NW</button>
+                                <button onclick="forcePrestigeReady()" class="p-3 rounded-lg bg-amber-950 border border-amber-500/40 text-amber-400 font-bold text-xs uppercase taptarget-glow col-span-2">Forçar Overclock Ready</button>
                             </div>
                         </div>
 
@@ -668,7 +779,7 @@
     </div>
 
     <!-- BOTTOM TAB BAR (Navegação Mobile App-like) -->
-    <nav class="md:hidden fixed bottom-0 w-full h-[72px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
+    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[72px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
         <button onclick="switchTab('tab-dash')" id="mobile-btn-tab-dash" class="bottom-nav-item active relative">
             <i class="fa-solid fa-solar-panel"></i>
             <span>Cortex</span>
@@ -843,6 +954,12 @@
             oneHitKill: false, 
             gameSpeedMultiplier: 1.0, 
             enemySpawnRate: 1200, 
+            luckMultiplier: 1.0,
+            cardDropMultiplier: 1.0,
+            repairDropMultiplier: 1.0,
+            bossSpawnChance: 0.06,
+            enemyDifficultyMultiplier: 1.0,
+            netwatchRateMultiplier: 1.0,
             xpMultiplier: 1.0,
             
             activeSkillsUnlocked: { 
@@ -911,6 +1028,80 @@
             'MÓDULOS: GRID RUN, CYBERWARE, DECK, MERCADO E SYS_ROOT CARREGADOS.',
             'DICA: use o Breach Protocol para ativar multiplicador temporário.'
         ];
+
+        function normalizeStateDefaults() {
+            const defaults = {
+                credits: 0.0,
+                totalCredits: 0.0,
+                dataFragments: 0,
+                multiplier: 1.0,
+                passiveCps: 0.0,
+                netwatchTracker: 0,
+                level: 1,
+                xp: 0,
+                xpNeeded: 100,
+                statPoints: 0,
+                playerHpMax: 100,
+                playerSpeed: 5.0,
+                bulletDmg: 25,
+                fireRate: 350,
+                dashCooldown: 3000,
+                empCooldown: 15000,
+                lastDashUsed: 0,
+                lastEmpUsed: 0,
+                isDashing: false,
+                dashEndTime: 0,
+                godMode: false,
+                oneHitKill: false,
+                gameSpeedMultiplier: 1.0,
+                enemySpawnRate: 1200,
+                luckMultiplier: 1.0,
+                cardDropMultiplier: 1.0,
+                repairDropMultiplier: 1.0,
+                bossSpawnChance: 0.06,
+                enemyDifficultyMultiplier: 1.0,
+                netwatchRateMultiplier: 1.0,
+                xpMultiplier: 1.0,
+                maxEquippedCards: 5,
+                prestigeLevel: 0,
+                prestigeTokens: 0
+            };
+
+            Object.keys(defaults).forEach(key => {
+                if (state[key] === undefined || state[key] === null || Number.isNaN(state[key])) {
+                    state[key] = defaults[key];
+                }
+            });
+
+            if (!state.attributes) {
+                state.attributes = {
+                    processing: { name: 'Poder Processamento', value: 0, desc: '+2% Ganhos C$ por nível' },
+                    firefrequency: { name: 'Frequência de Fogo', value: 0, desc: 'Acelera disparos (Exponencial)' },
+                    shielding: { name: 'Carga de I.C.E', value: 0, desc: '+10 HP Máximo na Arena' },
+                    overdrive: { name: 'Evasão de Buffer', value: 0, desc: '+Velocidade e redução de recargas' }
+                };
+            }
+
+            if (!state.activeSkillsUnlocked) {
+                state.activeSkillsUnlocked = { dash: true, emp: false, overcharge: false };
+            }
+            if (!state.prestigePerks) {
+                state.prestigePerks = { fire: 0, hp: 0, xp: 0 };
+            }
+            if (!Array.isArray(state.cards)) {
+                state.cards = [];
+            }
+
+            state.enemySpawnRate = Math.min(3000, Math.max(250, Number(state.enemySpawnRate) || 1200));
+            state.luckMultiplier = Math.min(5, Math.max(0.25, Number(state.luckMultiplier) || 1));
+            state.cardDropMultiplier = Math.min(10, Math.max(0, Number.isFinite(Number(state.cardDropMultiplier)) ? Number(state.cardDropMultiplier) : 1));
+            state.repairDropMultiplier = Math.min(5, Math.max(0, Number.isFinite(Number(state.repairDropMultiplier)) ? Number(state.repairDropMultiplier) : 1));
+            state.bossSpawnChance = Math.min(0.35, Math.max(0, Number.isFinite(Number(state.bossSpawnChance)) ? Number(state.bossSpawnChance) : 0.06));
+            state.enemyDifficultyMultiplier = Math.min(4, Math.max(0.25, Number.isFinite(Number(state.enemyDifficultyMultiplier)) ? Number(state.enemyDifficultyMultiplier) : 1));
+            state.netwatchRateMultiplier = Math.min(4, Math.max(0, Number.isFinite(Number(state.netwatchRateMultiplier)) ? Number(state.netwatchRateMultiplier) : 1));
+            state.gameSpeedMultiplier = Math.min(3, Math.max(0.25, Number(state.gameSpeedMultiplier) || 1));
+            state.multiplier = 1.0 + (Number(state.prestigeLevel) || 0);
+        }
 
         function saveGame(manual = false) {
             const dataToSave = {
@@ -981,6 +1172,7 @@
                             if (c) { c.purchased = sc.purchased; } 
                         });
                     }
+                    normalizeStateDefaults();
                     syncCyberwareUnlocks();
                     
                     applyAttributeEffects();
@@ -1034,7 +1226,9 @@
         // ================= INICIALIZAÇÃO =================
         window.onload = function() {
             setupPwaShell();
+            installNativeTouchGuards();
             initAmbientParticles();
+            normalizeStateDefaults();
             loadGame(); 
             syncCyberwareUnlocks();
             
@@ -1066,6 +1260,7 @@
 
         // ================= FUNÇÕES DE UI E NOTIFICAÇÕES =================
         function showNotification(message, type = 'info') {
+            if (type === 'levelup') return;
             const container = document.getElementById('toast-container');
             if (!container) return;
             
@@ -1239,10 +1434,10 @@
 
             if (leveledUp) {
                 playSynthSound('levelup');
-                showNotification(`LEVEL UP! Nível ${state.level}`, 'levelup');
                 addSystemLog(`SISTEMA UPGRADE: Nível ${state.level} alcançado. +3 Pontos.`, 'alert');
                 
                 renderDashboardAttributes();
+                renderPrestigeTab();
                 updateUI();
             } else {
                 updateUI();
@@ -1817,6 +2012,7 @@
                 u.costData = [5, 0, 15, 35, 60, 90, 140, 220][upgrades.indexOf(u)]; 
             });
             
+            state.multiplier = 1.0 + state.prestigeLevel;
             recalculatePassiveCps(); 
             applyAttributeEffects(); 
             
@@ -1827,6 +2023,9 @@
             renderCardsTab();
             
             playSynthSound('levelup'); 
+            addSystemLog(`HIPER-OVERCLOCK CONCLUÍDO: Núcleo ${state.prestigeLevel} ativado.`, 'success');
+            showNotification(`Overclock concluído: +1 HN`, 'success');
+            saveGame(false);
             switchTab('tab-dash');
         }
 
@@ -1910,8 +2109,9 @@
             const stealthUpg = upgrades.find(u => u.type === 'stealth'); 
             const stealthFactor = stealthUpg ? (1 - (stealthUpg.purchased * stealthUpg.value)) : 1;
             
-            if (Math.random() < 0.03 * stealthFactor && state.netwatchTracker < 100) {
-                state.netwatchTracker = Math.min(100, state.netwatchTracker + 0.5);
+            const netwatchRate = (state.netwatchRateMultiplier === undefined ? 1 : state.netwatchRateMultiplier);
+            if (netwatchRate > 0 && Math.random() < 0.03 * stealthFactor * netwatchRate && state.netwatchTracker < 100) {
+                state.netwatchTracker = Math.min(100, state.netwatchTracker + (0.5 * netwatchRate));
             }
 
             updatePurchaseButtons(); 
@@ -1998,7 +2198,11 @@
                 ['Cards', `${state.cards.length} (${equippedCards} eq.)`],
                 ['Cyber', `${boughtCyber}/${cyberwares.length}`],
                 ['Daemons', daemons.reduce((sum, d) => sum + d.count, 0)],
-                ['NetWatch', `${Math.round(state.netwatchTracker)}%`]
+                ['NetWatch', `${Math.round(state.netwatchTracker)}%`],
+                ['Spawn', `${Math.round(state.enemySpawnRate || 1200)}ms`],
+                ['Sorte', `${Number(state.luckMultiplier === undefined ? 1 : state.luckMultiplier).toFixed(2)}x`],
+                ['Boss', `${Math.round((state.bossSpawnChance === undefined ? 0.06 : state.bossSpawnChance) * 100)}%`],
+                ['Dific.', `${Number(state.enemyDifficultyMultiplier === undefined ? 1 : state.enemyDifficultyMultiplier).toFixed(2)}x`]
             ];
             box.innerHTML = values.map(([label, value]) => `
                 <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
@@ -2041,6 +2245,9 @@
             const speedSlider = document.getElementById('slider-gamespeed');
             if (speedSlider) speedSlider.value = state.gameSpeedMultiplier;
             setText('slider-gamespeed-val', `${state.gameSpeedMultiplier.toFixed(2).replace('.00', '')}x`);
+
+            syncAdminControlValues();
+            renderPrestigeTab();
             
             updateSkillCooldownUI();
             updateAdminSummary();
@@ -2279,7 +2486,10 @@
                 lastSpawn = now; 
             }
             if (now - lastLootSpawn >= 6000 / timeS) { 
-                if (Math.random() > 0.65) {
+                const repairMult = state.repairDropMultiplier === undefined ? 1 : state.repairDropMultiplier;
+                const luckMult = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
+                const repairChance = Math.min(0.95, 0.35 * repairMult * luckMult);
+                if (Math.random() < repairChance) {
                     lootItems.push({
                         x: Math.random() * (canvas.width - 40) + 20, 
                         y: Math.random() * (canvas.height - 40) + 20, 
@@ -2338,7 +2548,10 @@
                                 color: '#39ff14'
                             });
                             
-                            if (Math.random() < (e.isBoss ? 1.0 : 0.05 * (1 + (state.prestigePerks.xp * 0.15)))) { 
+                            const dropMult = state.cardDropMultiplier === undefined ? 1 : state.cardDropMultiplier;
+                            const luckMult = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
+                            const cardDropChance = Math.min(0.95, (e.isBoss ? 1.0 : 0.05 * (1 + (state.prestigePerks.xp * 0.15)) * dropMult * luckMult));
+                            if (Math.random() < cardDropChance) { 
                                 const sc = generateRandomCard(e.isBoss ? 3 : 1, e.isBoss ? 5 : 3); 
                                 state.cards.push(sc); 
                                 showNotification(`Chip Localizado: ${sc.name}`, "success"); 
@@ -2401,9 +2614,13 @@
             let y = Math.random() >= 0.5 ? (Math.random() < 0.5 ? -20 : canvas.height + 20) : Math.random() * canvas.height;
             
             const s = Math.random(); 
+            const bossBaseChance = state.bossSpawnChance === undefined ? 0.06 : state.bossSpawnChance;
+            const luckMult = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
+            const bossChance = Math.min(0.35, Math.max(0, bossBaseChance) * luckMult);
+            const difficulty = Math.max(0.25, state.enemyDifficultyMultiplier || 1);
             let t = {r: 9, speed: 1.6 + Math.random() * 1.2, hp: 35, dmg: 12, color: '#ff007f', isBoss: false};
             
-            if (s > 0.94) {
+            if (s < bossChance) {
                 t = {r: 22, speed: 0.8, hp: 200, dmg: 30, color: '#e11d48', isBoss: true}; 
             } else if (s > 0.82) {
                 t = {r: 7, speed: 3.2, hp: 20, dmg: 8, color: '#ffb703', isBoss: false}; 
@@ -2411,6 +2628,9 @@
                 t = {r: 12, speed: 1.0, hp: 85, dmg: 22, color: '#9333ea', isBoss: false};
             }
             
+            t.hp = Math.max(1, Math.round(t.hp * difficulty));
+            t.dmg = Math.max(1, Math.round(t.dmg * difficulty));
+            t.speed = t.speed * Math.sqrt(difficulty);
             enemies.push({x: x, y: y, ...t});
         }
         
@@ -2614,6 +2834,56 @@
             showNotification('Arena reiniciada.', 'info');
         }
 
+        function spawnAdminEnemyWave() {
+            if (typeof resizeCanvas === 'function') resizeCanvas();
+            for (let i = 0; i < 10; i++) {
+                spawnEnemyPattern();
+            }
+            updateAdminSummary();
+            showNotification('+10 monstros injetados na arena.', 'success');
+        }
+
+        function spawnAdminBoss() {
+            if (typeof resizeCanvas === 'function') resizeCanvas();
+            const difficulty = Math.max(0.25, state.enemyDifficultyMultiplier || 1);
+            enemies.push({
+                x: Math.random() * Math.max(1, canvas.width),
+                y: -30,
+                r: 22,
+                speed: 0.8 * Math.sqrt(difficulty),
+                hp: Math.round(200 * difficulty),
+                dmg: Math.round(30 * difficulty),
+                color: '#e11d48',
+                isBoss: true
+            });
+            updateAdminSummary();
+            showNotification('Boss manual lançado.', 'success');
+        }
+
+        function healPlayerFull() {
+            player.hp = state.playerHpMax;
+            updateGridUI();
+            showNotification('I.C.E restaurado ao máximo.', 'success');
+        }
+
+        function clearNetwatch() {
+            state.netwatchTracker = 0;
+            updateUI();
+            showNotification('NetWatch limpo.', 'success');
+        }
+
+        function forcePrestigeReady() {
+            const req = 15 + (state.prestigeLevel * 5);
+            if (state.level < req) {
+                state.level = req;
+                state.xp = 0;
+                state.xpNeeded = Math.round(100 * Math.pow(state.level, 1.4));
+            }
+            renderPrestigeTab();
+            updateUI();
+            showNotification('Hiper-Overclock liberado para teste.', 'success');
+        }
+
         function copySaveToClipboard() {
             const payload = JSON.stringify({
                 state: state,
@@ -2628,6 +2898,65 @@
             } else {
                 showNotification('Save exportado no campo de texto.', 'info');
             }
+        }
+
+        function syncAdminControlValues() {
+            const setSlider = (id, value) => {
+                const el = document.getElementById(id);
+                if (el && document.activeElement !== el) el.value = value;
+            };
+            const spawnRate = state.enemySpawnRate === undefined ? 1200 : state.enemySpawnRate;
+            const luckRate = state.luckMultiplier === undefined ? 1 : state.luckMultiplier;
+            const cardRate = state.cardDropMultiplier === undefined ? 1 : state.cardDropMultiplier;
+            const repairRate = state.repairDropMultiplier === undefined ? 1 : state.repairDropMultiplier;
+            const bossRate = state.bossSpawnChance === undefined ? 0.06 : state.bossSpawnChance;
+            const difficultyRate = state.enemyDifficultyMultiplier === undefined ? 1 : state.enemyDifficultyMultiplier;
+            const netwatchRate = state.netwatchRateMultiplier === undefined ? 1 : state.netwatchRateMultiplier;
+
+            setSlider('slider-spawnrate', spawnRate);
+            setSlider('slider-luck', luckRate);
+            setSlider('slider-carddrop', cardRate);
+            setSlider('slider-repairdrop', repairRate);
+            setSlider('slider-bosschance', bossRate);
+            setSlider('slider-difficulty', difficultyRate);
+            setSlider('slider-netwatch', netwatchRate);
+
+            setText('slider-spawnrate-val', `${Math.round(spawnRate)}ms`);
+            setText('slider-luck-val', `${Number(luckRate).toFixed(2)}x`);
+            setText('slider-carddrop-val', `${Number(cardRate).toFixed(2)}x`);
+            setText('slider-repairdrop-val', `${Number(repairRate).toFixed(2)}x`);
+            setText('slider-bosschance-val', `${Math.round(bossRate * 100)}%`);
+            setText('slider-difficulty-val', `${Number(difficultyRate).toFixed(2)}x`);
+            setText('slider-netwatch-val', `${Number(netwatchRate).toFixed(2)}x`);
+        }
+
+        function changeEnemySpawnRate(v) {
+            state.enemySpawnRate = Math.min(3000, Math.max(250, parseFloat(v) || 1200));
+            setText('slider-spawnrate-val', `${Math.round(state.enemySpawnRate)}ms`);
+        }
+        function changeLuckMultiplier(v) {
+            state.luckMultiplier = Math.min(5, Math.max(0.25, parseFloat(v) || 1));
+            setText('slider-luck-val', `${state.luckMultiplier.toFixed(2)}x`);
+        }
+        function changeCardDropMultiplier(v) {
+            state.cardDropMultiplier = Math.min(10, Math.max(0, parseFloat(v) || 0));
+            setText('slider-carddrop-val', `${state.cardDropMultiplier.toFixed(2)}x`);
+        }
+        function changeRepairDropMultiplier(v) {
+            state.repairDropMultiplier = Math.min(5, Math.max(0, parseFloat(v) || 0));
+            setText('slider-repairdrop-val', `${state.repairDropMultiplier.toFixed(2)}x`);
+        }
+        function changeBossChance(v) {
+            state.bossSpawnChance = Math.min(0.35, Math.max(0, parseFloat(v) || 0));
+            setText('slider-bosschance-val', `${Math.round(state.bossSpawnChance * 100)}%`);
+        }
+        function changeEnemyDifficulty(v) {
+            state.enemyDifficultyMultiplier = Math.min(4, Math.max(0.25, parseFloat(v) || 1));
+            setText('slider-difficulty-val', `${state.enemyDifficultyMultiplier.toFixed(2)}x`);
+        }
+        function changeNetwatchRate(v) {
+            state.netwatchRateMultiplier = Math.min(4, Math.max(0, parseFloat(v) || 0));
+            setText('slider-netwatch-val', `${state.netwatchRateMultiplier.toFixed(2)}x`);
         }
 
         function toggleGodMode() { 
@@ -2709,6 +3038,43 @@
                 setTimeout(uc, 150);
             }
             uc();
+        }
+
+
+        // ================= BLOQUEIO DE TOQUE LONGO / MENU NATIVO iOS =================
+        function installNativeTouchGuards() {
+            if (!document || typeof document.addEventListener !== 'function') return;
+            const block = (ev) => {
+                const tag = (ev.target && ev.target.tagName ? ev.target.tagName.toLowerCase() : '');
+                if (tag === 'textarea' || tag === 'input' || tag === 'select') return;
+                ev.preventDefault();
+            };
+            document.addEventListener('contextmenu', block, { passive: false });
+            document.addEventListener('selectstart', block, { passive: false });
+            document.addEventListener('dragstart', block, { passive: false });
+            let longPressTimer = null;
+            let touchMoved = false;
+            document.addEventListener('touchstart', (ev) => {
+                touchMoved = false;
+                const tag = (ev.target && ev.target.tagName ? ev.target.tagName.toLowerCase() : '');
+                if (tag === 'textarea' || tag === 'input' || tag === 'select') return;
+                clearTimeout(longPressTimer);
+                longPressTimer = setTimeout(() => {
+                    if (!touchMoved) {
+                        try { ev.preventDefault(); } catch (err) {}
+                    }
+                }, 350);
+            }, { passive: false });
+            document.addEventListener('touchmove', () => {
+                touchMoved = true;
+                clearTimeout(longPressTimer);
+            }, { passive: true });
+            document.addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+            }, { passive: true });
+            document.querySelectorAll('button, canvas, a, .taptarget-glow, .bottom-nav-item').forEach(el => {
+                el.addEventListener('touchstart', () => {}, { passive: true });
+            });
         }
 
         // ================= BACKGROUND PARTICLES =================
