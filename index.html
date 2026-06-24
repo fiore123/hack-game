@@ -91,7 +91,7 @@
             transform: translateY(0) scale(1);
         }
 
-        /* Ocultar barra de rolagem para dar o visual nativo */
+        /* Ocultar barra de rolagem */
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -135,6 +135,27 @@
             border-radius: 50%;
             box-shadow: 0 0 8px #ff007f;
         }
+
+
+        .neon-border-pink { box-shadow: 0 0 15px rgba(255, 0, 127, 0.32), inset 0 0 10px rgba(255, 0, 127, 0.10); border: 1px solid rgba(255, 0, 127, 0.55); }
+        .neon-border-green { box-shadow: 0 0 15px rgba(57, 255, 20, 0.26), inset 0 0 10px rgba(57, 255, 20, 0.08); border: 1px solid rgba(57, 255, 20, 0.45); }
+        .neon-border-orange { box-shadow: 0 0 15px rgba(255, 183, 3, 0.30), inset 0 0 10px rgba(255, 183, 3, 0.10); border: 1px solid rgba(255, 183, 3, 0.55); }
+        .neon-border-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.30), inset 0 0 10px rgba(239, 68, 68, 0.10); border: 1px solid rgba(239, 68, 68, 0.50); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(10px) scale(0.98); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.22s ease-out both; }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 9999px;
+            background: #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+        }
     </style>
 </head>
 <body class="crt-scanlines bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden">
@@ -142,7 +163,7 @@
     <!-- CANVAS DE PARTÍCULAS EM SEGUNDO PLANO -->
     <canvas id="ambient-particles" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-30"></canvas>
 
-    <!-- HEADER / BARRA SUPERIOR DE STATUS NEURAL (App-like Header) -->
+    <!-- HEADER / BARRA SUPERIOR DE STATUS NEURAL -->
     <header class="relative z-20 bg-slate-950/90 backdrop-blur-2xl border-b border-white/5 flex flex-col shrink-0 safe-area-pt">
         <div class="px-4 py-3 flex flex-row items-center justify-between gap-3">
             
@@ -150,27 +171,24 @@
             <div class="flex items-center gap-3 w-1/2">
                 <div class="relative w-10 h-10 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-center neon-border-cyan shrink-0">
                     <i class="fa-solid fa-microchip text-cyan-400 text-lg"></i>
-                    <!-- Notificação de Ponto não gasto no Avatar -->
                     <div id="header-point-badge" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-fuchsia-500 rounded-full border-2 border-slate-950 shadow-[0_0_8px_#ff007f] hidden animate-pulse"></div>
                 </div>
                 <div class="flex flex-col flex-1">
                     <div class="flex items-center justify-between w-full mb-1">
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest font-mono-cyber">Nível <span id="hacker-level" class="text-cyan-400 text-xs">1</span></span>
                     </div>
-                    <!-- Barra de XP Suave e contínua -->
                     <div class="w-full max-w-[120px] md:max-w-[160px] bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800 relative">
                         <div id="hacker-xp-bar" class="bg-gradient-to-r from-cyan-400 to-fuchsia-500 h-full rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Direita: Moedas (Sempre Visíveis) -->
+            <!-- Direita: Moedas -->
             <div class="flex items-center justify-end gap-4 text-right w-1/2">
                 <div class="flex flex-col items-end">
                     <span id="global-credits" class="text-base md:text-xl font-black text-cyan-400 neon-text-cyan leading-none tracking-tight font-mono-cyber">0 C$</span>
                     <span id="global-data" class="text-xs md:text-sm font-black text-fuchsia-400 neon-text-pink mt-1 leading-none tracking-tight font-mono-cyber">0 DF</span>
                 </div>
-                <!-- Controle de Som / Áudio (Oculto em telas muito pequenas para dar espaço) -->
                 <button onclick="toggleAudio()" id="btn-audio" class="hidden sm:flex w-8 h-8 rounded-lg border border-white/10 bg-black/40 items-center justify-center hover:bg-white/5 transition-colors cursor-pointer taptarget-glow shrink-0">
                     <i class="fa-solid fa-volume-high text-cyan-400 text-xs"></i>
                 </button>
@@ -185,40 +203,39 @@
         <!-- SIDEBAR DESKTOP (Oculta no Mobile) -->
         <nav class="hidden md:flex w-64 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl p-4 flex-col gap-2 overflow-y-auto shrink-0 select-none">
             
-            <button onclick="switchTab('tab-dash')" id="desktop-btn-tab-dash" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-400 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
+            <button onclick="switchTab('tab-dash')" id="desktop-btn-tab-dash" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-400 neon-border-cyan font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-solar-panel text-lg w-6 text-center"></i>
                 <span>Cortex</span>
-                <!-- Badge de notificação -->
                 <div id="desktop-cortex-badge" class="absolute right-4 w-2 h-2 bg-fuchsia-500 rounded-full shadow-[0_0_8px_#ff007f] hidden"></div>
             </button>
             
-            <button onclick="switchTab('tab-grid')" id="desktop-btn-tab-grid" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow">
+            <button onclick="switchTab('tab-grid')" id="desktop-btn-tab-grid" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-gamepad text-lg w-6 text-center"></i>
                 <span>Grid Run</span>
             </button>
 
-            <button onclick="switchTab('tab-implants')" id="desktop-btn-tab-implants" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow">
+            <button onclick="switchTab('tab-implants')" id="desktop-btn-tab-implants" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-dna text-lg w-6 text-center"></i>
                 <span>Implantes</span>
             </button>
 
-            <button onclick="switchTab('tab-cards')" id="desktop-btn-tab-cards" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow">
+            <button onclick="switchTab('tab-cards')" id="desktop-btn-tab-cards" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-sd-card text-lg w-6 text-center"></i>
                 <span>Deck / Chips</span>
             </button>
 
-            <button onclick="switchTab('tab-market')" id="desktop-btn-tab-market" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow">
+            <button onclick="switchTab('tab-market')" id="desktop-btn-tab-market" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-store text-lg w-6 text-center"></i>
                 <span>Mercado</span>
             </button>
 
-            <button onclick="switchTab('tab-prestige')" id="desktop-btn-tab-prestige" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow">
+            <button onclick="switchTab('tab-prestige')" id="desktop-btn-tab-prestige" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative">
                 <i class="fa-solid fa-arrow-up-right-dots text-lg w-6 text-center text-amber-500"></i>
                 <span>Prestígio</span>
             </button>
 
             <div class="mt-auto pt-4 border-t border-white/5">
-                <button onclick="switchTab('tab-admin')" id="desktop-btn-tab-admin" class="w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl border border-red-950/40 text-red-500/60 font-bold uppercase text-xs tracking-wider hover:bg-red-950/20 transition-all taptarget-glow">
+                <button onclick="switchTab('tab-admin')" id="desktop-btn-tab-admin" class="tab-btn w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl border border-red-950/40 text-red-500/60 font-bold uppercase text-xs tracking-wider hover:bg-red-950/20 transition-all taptarget-glow relative">
                     <i class="fa-solid fa-user-shield w-6 text-center"></i>
                     <span>Sys Root</span>
                 </button>
@@ -238,7 +255,7 @@
                         
                         <div class="lg:col-span-2 flex flex-col gap-5">
                             
-                            <!-- Clicker Nativo App-like -->
+                            <!-- Clicker Nativo -->
                             <div class="glass-panel p-5 flex flex-col md:flex-row items-center gap-6 relative">
                                 <div class="flex-1 text-center md:text-left w-full">
                                     <h2 class="text-xl font-black text-cyan-400 flex items-center justify-center md:justify-start gap-2">
@@ -259,7 +276,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Botão de Hack Circular Lindo -->
                                 <button id="btn-clicker" class="relative group w-36 h-36 md:w-40 md:h-40 rounded-full border-2 border-cyan-500/80 flex flex-col items-center justify-center neon-border-cyan bg-gradient-to-b from-cyan-950/40 to-slate-900/40 cursor-pointer shrink-0 taptarget-glow shadow-[0_0_30px_rgba(0,240,255,0.15)] mx-auto">
                                     <div class="absolute inset-0 bg-cyan-400/5 rounded-full group-active:bg-cyan-400/10 transition-colors"></div>
                                     <i class="fa-solid fa-network-wired text-4xl text-cyan-400 mb-2 neon-text-cyan group-active:scale-95 transition-transform"></i>
@@ -318,13 +334,21 @@
                                     <span class="text-slate-500">Múlt. Final:</span>
                                     <span id="stat-conversion" class="text-fuchsia-400 font-bold">1.00x</span>
                                 </div>
-                                <div class="flex justify-between py-1">
+                                <div class="flex justify-between py-1 border-b border-white/5">
                                     <span class="text-slate-500">I.C.E Máximo:</span>
                                     <span id="stat-ice-max" class="text-slate-200 font-bold">100 HP</span>
                                 </div>
+                                <div class="pt-2">
+                                    <div class="flex justify-between py-1">
+                                        <span class="text-slate-500">NetWatch:</span>
+                                        <span id="tracker-pct" class="text-rose-400 font-bold">0%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+                                        <div id="tracker-bar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Terminal de Logs Nativo -->
                             <div class="glass-panel p-4 flex-1 flex flex-col min-h-[250px]">
                                 <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
                                     <span class="text-[10px] text-cyan-400 font-bold tracking-widest flex items-center gap-1.5 uppercase">
@@ -470,7 +494,7 @@
                                     <span class="text-fuchsia-400 font-bold font-mono-cyber text-sm">75 DF</span>
                                 </button>
                                 <button onclick="autoFuseDuplicates()" class="w-full p-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl flex justify-center items-center font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition-transform mt-2">
-                                    <i class="fa-solid fa-cubes mr-2 animate-pulse"></i> Fusão (3X Iguais)
+                                    <i class="fa-solid fa-cubes mr-2 animate-pulse"></i> Fusão (3X Iguaís)
                                 </button>
                             </div>
                         </div>
@@ -482,7 +506,7 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB 5: MERCADO NEGRO (DAEMONS & UPGRADES) ================= -->
+                <!-- ================= TAB 5: MERCADO NEGRO ================= -->
                 <section id="tab-market" class="page-tab flex-1">
                     <div class="mb-5 pl-2">
                         <h2 class="text-2xl font-black text-emerald-400 uppercase tracking-widest">MERCADO NEGRO</h2>
@@ -617,6 +641,26 @@
                             </div>
                         </div>
 
+                        <div class="glass-panel p-5 flex flex-col gap-4 border border-red-500/20">
+                            <h3 class="text-xs font-black text-red-400 uppercase tracking-widest border-b border-white/10 pb-2">ROOT LAB</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="injectStatPoints(25)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-400 font-bold text-xs uppercase taptarget-glow">+25 Pontos</button>
+                                <button onclick="giveStarterPack()" class="p-3 rounded-lg bg-black/40 border border-yellow-500/30 text-yellow-400 font-bold text-xs uppercase taptarget-glow">Pack Teste</button>
+                                <button onclick="unlockAllCyberware()" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-400 font-bold text-xs uppercase taptarget-glow col-span-2">Liberar Cyberware</button>
+                                <button onclick="maxAllUpgrades()" class="p-3 rounded-lg bg-black/40 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase taptarget-glow col-span-2">Max Upgrades</button>
+                                <button onclick="resetRuntimeArena()" class="p-3 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 font-bold text-xs uppercase taptarget-glow col-span-2">Resetar Arena</button>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-5 flex flex-col gap-4 border border-red-500/20 lg:col-span-2">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                                <h3 class="text-xs font-black text-red-400 uppercase tracking-widest">INSPECTOR DE SAVE</h3>
+                                <button onclick="copySaveToClipboard()" class="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-black uppercase taptarget-glow">Copiar Save</button>
+                            </div>
+                            <div id="admin-state-summary" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono-cyber"></div>
+                            <textarea id="admin-save-dump" class="w-full min-h-[90px] bg-slate-950 border border-slate-800 rounded-xl p-3 text-[10px] text-slate-400 font-mono-cyber outline-none focus:border-red-500/40" spellcheck="false" placeholder="Snapshot do save aparecerá aqui ao copiar/exportar."></textarea>
+                        </div>
+
                     </div>
                 </section>
             </div>
@@ -650,17 +694,27 @@
             <i class="fa-solid fa-arrow-up-right-dots"></i>
             <span>Prest</span>
         </button>
+        <button onclick="switchTab('tab-admin')" id="mobile-btn-tab-admin" class="bottom-nav-item">
+            <i class="fa-solid fa-user-shield"></i>
+            <span>Root</span>
+        </button>
     </nav>
 
     <!-- LÓGICA DO JOGO (TOTALMENTE EXPANDIDA) -->
     <script>
-        // ================= SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API) =================
+        // ================= SISTEMA DE ÁUDIO SINTETIZADO =================
         let audioCtx = null;
         let isMuted = false;
 
         function initAudio() {
             if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioClass) return;
+                try {
+                    audioCtx = new AudioClass();
+                } catch (err) {
+                    audioCtx = null;
+                }
             }
         }
 
@@ -669,10 +723,10 @@
             isMuted = !isMuted;
             const btn = document.getElementById('btn-audio');
             if (isMuted) {
-                btn.innerHTML = `<i class="fa-solid fa-volume-xmark text-rose-500 text-xs"></i>`;
+                btn.innerHTML = `<i class="fa-solid fa-volume-xmark text-rose-500 text-sm"></i>`;
                 showNotification("Som desativado", "info");
             } else {
-                btn.innerHTML = `<i class="fa-solid fa-volume-high text-cyan-400 text-xs"></i>`;
+                btn.innerHTML = `<i class="fa-solid fa-volume-high text-cyan-400 text-sm"></i>`;
                 showNotification("Som ativado", "info");
                 playSynthSound('click');
             }
@@ -683,7 +737,7 @@
             initAudio();
             if (!audioCtx) return;
             
-            if (audioCtx.state === 'suspended') {
+            if (audioCtx.state === 'suspended' && typeof audioCtx.resume === 'function') {
                 audioCtx.resume();
             }
 
@@ -733,10 +787,10 @@
             } 
             else if (type === 'levelup') {
                 osc.type = 'sine'; 
-                osc.frequency.setValueAtTime(261.6, now); // C4
-                osc.frequency.setValueAtTime(329.6, now + 0.1); // E4
-                osc.frequency.setValueAtTime(392.0, now + 0.2); // G4
-                osc.frequency.setValueAtTime(523.3, now + 0.3); // C5
+                osc.frequency.setValueAtTime(261.6, now); 
+                osc.frequency.setValueAtTime(329.6, now + 0.1); 
+                osc.frequency.setValueAtTime(392.0, now + 0.2); 
+                osc.frequency.setValueAtTime(523.3, now + 0.3); 
                 gain.gain.setValueAtTime(0.12, now); 
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
                 osc.start(now); 
@@ -752,7 +806,7 @@
             }
         }
 
-        // ================= ESTADO CENTRAL DO JOGO (STATE) =================
+        // ================= ESTADO CENTRAL DO JOGO =================
         const state = {
             credits: 0.0, 
             totalCredits: 0.0, 
@@ -766,11 +820,10 @@
             xpNeeded: 100, 
             statPoints: 0,
             
-            // INFINITE ATTRIBUTES (Max limit removido)
             attributes: {
-                processing: { name: 'Poder Processamento', value: 0, desc: '+2% Ganhos C$ (Aditivo Infinito)' },
-                firefrequency: { name: 'Frequência de Fogo', value: 0, desc: 'Acelera a arma (Curva Exponencial)' },
-                shielding: { name: 'Carga de I.C.E', value: 0, desc: '+10 HP Máximo na Arena (Infinito)' },
+                processing: { name: 'Poder Processamento', value: 0, desc: '+2% Ganhos C$ por nível' },
+                firefrequency: { name: 'Frequência de Fogo', value: 0, desc: 'Acelera disparos (Exponencial)' },
+                shielding: { name: 'Carga de I.C.E', value: 0, desc: '+10 HP Máximo na Arena' },
                 overdrive: { name: 'Evasão de Buffer', value: 0, desc: '+Velocidade e redução de recargas' }
             },
             
@@ -849,7 +902,15 @@
         ];
 
         // ================= SISTEMA DE SAVE / LOAD =================
-        const SAVE_KEY = 'neonOverdrive_App_V7_NoLimits';
+        const SAVE_KEY = 'neonOverdrive_App_V8';
+        let currentMarketTab = 'daemons';
+
+        const initialLogs = [
+            'BOOT SEQUENCE: NEON OVERDRIVE v8.1',
+            'CORTEX ONLINE. CANAL CRIPTOGRÁFICO ESTÁVEL.',
+            'MÓDULOS: GRID RUN, CYBERWARE, DECK, MERCADO E SYS_ROOT CARREGADOS.',
+            'DICA: use o Breach Protocol para ativar multiplicador temporário.'
+        ];
 
         function saveGame(manual = false) {
             const dataToSave = {
@@ -905,30 +966,22 @@
                     if(data.daemons) {
                         data.daemons.forEach(sd => { 
                             let d = daemons.find(x => x.id === sd.id); 
-                            if (d) { 
-                                d.count = sd.count; 
-                                d.cost = sd.cost; 
-                            } 
+                            if (d) { d.count = sd.count; d.cost = sd.cost; } 
                         });
                     }
                     if(data.upgrades) {
                         data.upgrades.forEach(su => { 
                             let u = upgrades.find(x => x.id === su.id); 
-                            if (u) { 
-                                u.purchased = su.purchased; 
-                                u.costCredits = su.costCredits; 
-                                u.costData = su.costData; 
-                            } 
+                            if (u) { u.purchased = su.purchased; u.costCredits = su.costCredits; u.costData = su.costData; } 
                         });
                     }
                     if(data.cyberwares) {
                         data.cyberwares.forEach(sc => { 
                             let c = cyberwares.find(x => x.id === sc.id); 
-                            if (c) { 
-                                c.purchased = sc.purchased; 
-                            } 
+                            if (c) { c.purchased = sc.purchased; } 
                         });
                     }
+                    syncCyberwareUnlocks();
                     
                     applyAttributeEffects();
                     addSystemLog("SISTEMA RESTAURADO DO BACKUP LOCAL.", "success");
@@ -947,10 +1000,43 @@
         }
 
 
+        function setupPwaShell() {
+            const manifest = {
+                name: 'Neon Overdrive',
+                short_name: 'Overdrive',
+                start_url: '.',
+                display: 'standalone',
+                background_color: '#030712',
+                theme_color: '#030712',
+                orientation: 'portrait-primary',
+                icons: [
+                    { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/GitHub_Invertocat_Logo.svg/192px-GitHub_Invertocat_Logo.svg.png', sizes: '192x192', type: 'image/png' }
+                ]
+            };
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink && window.URL && window.Blob) {
+                try {
+                    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                    manifestLink.setAttribute('href', URL.createObjectURL(blob));
+                } catch (err) {
+                    addSystemLog('MANIFEST PWA EXTERNO MANTIDO.', 'alert');
+                }
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').then(() => {
+                    addSystemLog('SERVICE WORKER PWA REGISTRADO.', 'success');
+                }).catch(() => {
+                    addSystemLog('SERVICE WORKER NÃO ENCONTRADO. MODO ONLINE ATIVO.', 'alert');
+                });
+            }
+        }
+
         // ================= INICIALIZAÇÃO =================
         window.onload = function() {
+            setupPwaShell();
             initAmbientParticles();
             loadGame(); 
+            syncCyberwareUnlocks();
             
             initialLogs.forEach(log => addSystemLog(log, 'system'));
             generateBreachProtocol();
@@ -965,10 +1051,11 @@
             renderPrestigeTab();
             renderCardsTab();
             
-            // Loops Físicos e Lógicos
+            // Corrige o bug das abas que ficavam invisíveis no mobile ao iniciar
+            switchTab('tab-dash');
+            
             setInterval(gameTick, 100); 
             
-            // Auto-save a cada 5 segundos silencioso
             setInterval(() => {
                 saveGame(false);
             }, 5000); 
@@ -977,7 +1064,7 @@
             updateUI();
         };
 
-        // UI Notifications & Logs
+        // ================= FUNÇÕES DE UI E NOTIFICAÇÕES =================
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -1039,10 +1126,93 @@
 
         function clearSystemLogs() {
             const container = document.getElementById('deck-terminal-logs');
-            if (container) {
-                container.innerHTML = '';
-            }
+            if (container) container.innerHTML = '';
             addSystemLog("CACHE LIMPO PELO USUÁRIO.", "system");
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value;
+        }
+
+        function setStyleWidth(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.style.width = value;
+        }
+
+        function syncCyberwareUnlocks() {
+            const emp = cyberwares.find(c => c.type === 'emp');
+            state.activeSkillsUnlocked.dash = true;
+            state.activeSkillsUnlocked.emp = Boolean(state.activeSkillsUnlocked.emp || (emp && emp.purchased));
+            const empButton = document.getElementById('skill-btn-emp');
+            if (empButton) {
+                if (state.activeSkillsUnlocked.emp) empButton.classList.remove('opacity-40');
+                else empButton.classList.add('opacity-40');
+            }
+        }
+
+
+        // ================= SWITCH TABS SYSTEM CORRIGIDO =================
+        function switchTab(tabId) {
+            playSynthSound('click');
+
+            // Esconder todas as abas
+            document.querySelectorAll('.page-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+
+            // Atualizar classes dos botões DESKTOP
+            const desktopTabs = ['tab-dash', 'tab-grid', 'tab-implants', 'tab-cards', 'tab-market', 'tab-prestige', 'tab-admin'];
+            desktopTabs.forEach(id => {
+                const btn = document.getElementById(`desktop-btn-${id}`);
+                if (btn) {
+                    // Reset class base
+                    btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                    if (id === 'tab-admin') {
+                        btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl border border-red-950/40 text-red-500/60 font-bold uppercase text-xs tracking-wider hover:bg-red-950/20 transition-all taptarget-glow relative";
+                    }
+                    if (id === 'tab-prestige') {
+                         btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-transparent text-slate-400 hover:bg-white/5 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                    }
+
+                    // Classe Ativa
+                    if (id === tabId) {
+                        if (id === 'tab-dash' || id === 'tab-implants' || id === 'tab-cards') {
+                            btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-cyan-500/30 bg-cyan-950/20 text-cyan-400 neon-border-cyan font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                        } else if (id === 'tab-grid') {
+                            btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-fuchsia-500/30 bg-fuchsia-950/20 text-fuchsia-400 neon-border-pink font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                        } else if (id === 'tab-market') {
+                            btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-400 neon-border-green font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                        } else if (id === 'tab-prestige') {
+                            btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl border border-amber-500/30 bg-amber-950/20 text-amber-400 neon-border-orange font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                        } else if (id === 'tab-admin') {
+                            btn.className = "tab-btn w-full flex items-center justify-start gap-3 px-4 py-3 rounded-xl border border-red-500/50 bg-red-950/20 text-red-400 font-bold uppercase text-xs tracking-wider transition-all taptarget-glow relative";
+                        }
+                    }
+                }
+            });
+
+            // Atualizar classes dos botões MOBILE
+            const mobileTabs = ['dash', 'grid', 'implants', 'cards', 'market', 'prestige', 'admin'];
+            mobileTabs.forEach(t => {
+                const mobBtn = document.getElementById(`mobile-btn-tab-${t}`);
+                if (mobBtn) {
+                    if (`tab-${t}` === tabId) {
+                        mobBtn.classList.add('active');
+                    } else {
+                        mobBtn.classList.remove('active');
+                    }
+                }
+            });
+
+            // Parar o Grid Run se sair da aba
+            if (tabId !== 'tab-grid' && isPlayingGrid) {
+                stopGridRun(false);
+            }
         }
 
 
@@ -1059,7 +1229,6 @@
 
             let leveledUp = false;
             
-            // Loop while you have enough XP to level up multiple times
             while (state.xp >= state.xpNeeded) {
                 state.xp -= state.xpNeeded;
                 state.level++;
@@ -1070,7 +1239,6 @@
 
             if (leveledUp) {
                 playSynthSound('levelup');
-                // LEVEL UP POPUP REMOVIDO! Apenas notificação silenciosa e update de UI.
                 showNotification(`LEVEL UP! Nível ${state.level}`, 'levelup');
                 addSystemLog(`SISTEMA UPGRADE: Nível ${state.level} alcançado. +3 Pontos.`, 'alert');
                 
@@ -1083,7 +1251,7 @@
 
         function allocateAttributePoint(key) {
             const attr = state.attributes[key];
-            if (state.statPoints > 0) { // Removida a limitação máxima (attr.value < attr.max)
+            if (state.statPoints > 0) { 
                 state.statPoints--;
                 attr.value++;
                 
@@ -1096,28 +1264,23 @@
         }
 
         function applyAttributeEffects() {
-            // 1. Processing: +2% per level infinitely
-            // O uso é feito diretamente no Game Tick / Click
-            
-            // 2. Frequência de fogo (Diminishing return)
+            // Frequência de fogo (Diminishing return)
             const freqLevel = state.attributes.firefrequency.value;
             const prestigeFireBonus = 1 - (state.prestigePerks.fire * 0.08);
-            // Fórmula que nunca chega a 0: 350 * 0.97^nível
             state.fireRate = Math.max(50, 350 * Math.pow(0.97, freqLevel) * prestigeFireBonus);
             
-            // 3. Shielding (+10 HP per level infinitely)
+            // Shielding (+10 HP per level infinitely)
             const shieldingLevel = state.attributes.shielding.value;
             const cardHpBonus = 1 + getCardBonusMultiplier('shield');
             const prestigeHpBonus = state.prestigePerks.hp * 25;
             state.playerHpMax = Math.round((100 + (shieldingLevel * 10)) * cardHpBonus) + prestigeHpBonus;
             
-            // 4. Overdrive (Diminishing para Cooldowns, Additive para Speed)
+            // Overdrive
             const overdriveLevel = state.attributes.overdrive.value;
             const cardSpeedBonus = 1 + getCardBonusMultiplier('speed');
             state.playerSpeed = 5.0 * (1 + (overdriveLevel * 0.02)) * cardSpeedBonus;
             
             const cyberCooldownReduction = cyberwares.find(c => c.type === 'cooldown_reduc').purchased ? 0.8 : 1.0;
-            // Cooldowns reduzem em 2% exponencialmente por nível de overdrive
             const overdriveCooldownReduction = Math.pow(0.98, overdriveLevel);
             
             state.dashCooldown = Math.max(800, 3000 * overdriveCooldownReduction * cyberCooldownReduction);
@@ -1150,7 +1313,7 @@
             
             document.getElementById('dash-unspent-points').innerText = state.statPoints;
             
-            // Notificadores visuais nos menus de que há pontos não gastos (Bolinhas Vermelhas)
+            // Notificadores visuais
             const badges = ['desktop-cortex-badge', 'mobile-cortex-badge', 'header-point-badge'];
             badges.forEach(id => {
                 const el = document.getElementById(id);
@@ -1185,7 +1348,6 @@
             
             document.getElementById('breach-status').innerHTML = `${breachCombination.join(' ')}`;
             
-            // Garantir as peças na matriz
             let buttonsList = [...breachCombination];
             while (buttonsList.length < 12) {
                 buttonsList.push(hexes[Math.floor(Math.random() * hexes.length)]);
@@ -1207,7 +1369,7 @@
             if (breachCombination[breachSelected.length - 1] === hexValue) {
                 if (breachSelected.length === breachCombination.length) {
                     breachMultiplier = 5.0; 
-                    breachEndTime = Date.now() + 45000; // 45 segundos
+                    breachEndTime = Date.now() + 45000; 
                     
                     playSynthSound('powerup'); 
                     showNotification("BREACH CONCLUÍDO! 5.0x C$ ATIVADO!", "success");
@@ -1384,8 +1546,8 @@
             
             if (i.type === 'emp') { 
                 state.activeSkillsUnlocked.emp = true; 
-                document.getElementById('skill-btn-emp').classList.remove('opacity-40'); 
             }
+            syncCyberwareUnlocks();
             
             applyAttributeEffects(); 
             renderImplants(); 
@@ -1675,7 +1837,7 @@
             
             const upg = upgrades.find(x => x.type === 'click_power'); 
             const bonusPower = upg ? upg.purchased * upg.value : 0;
-            const procBonus = 1 + (state.attributes.processing.value * 0.02); // Infinito 2% por lvl
+            const procBonus = 1 + (state.attributes.processing.value * 0.02);
             const cardBonus = 1 + getCardBonusMultiplier('credits');
             
             const total = (1.0 + bonusPower) * procBonus * state.multiplier * breachMultiplier * cardBonus;
@@ -1684,14 +1846,14 @@
             state.totalCredits += total;
             
             createFloatingTextOnCursor(e, `+${total.toFixed(1)} C$`, 'text-cyan-400');
-            gainXP(0.5); // XP base ganho
+            gainXP(0.5); 
             updateUI();
         });
 
         function createFloatingTextOnCursor(e, txt, cls) {
             const rect = document.getElementById('btn-clicker').getBoundingClientRect();
             const el = document.createElement('span'); 
-            el.className = `absolute text-sm font-black ${cls} pointer-events-none transition-all duration-500 opacity-100 z-50`; 
+            el.className = `absolute text-sm font-black ${cls} pointer-events-none transition-all duration-500 opacity-100 z-50 select-none`; 
             el.innerText = txt;
             
             el.style.left = `${(e.clientX - rect.left) + (Math.random() * 20 - 10)}px`; 
@@ -1708,7 +1870,7 @@
 
         function gameTick() {
             const timeScale = state.gameSpeedMultiplier;
-            const procBonus = 1 + (state.attributes.processing.value * 0.02); // 2% aditivo infinito
+            const procBonus = 1 + (state.attributes.processing.value * 0.02); 
             const cardBonus = 1 + getCardBonusMultiplier('credits');
             
             const earnTick = (state.passiveCps / 10) * procBonus * state.multiplier * breachMultiplier * timeScale * cardBonus;
@@ -1722,12 +1884,10 @@
 
             const autoUpg = upgrades.find(u => u.type === 'autoclick');
             if (autoUpg && autoUpg.purchased > 0) {
-                // Cálculo preciso do auto click para simular o click manual
                 const upgClick = upgrades.find(x => x.type === 'click_power'); 
                 const bonusPow = upgClick ? upgClick.purchased * upgClick.value : 0;
                 const powerPerClick = (1.0 + bonusPow) * procBonus * state.multiplier * breachMultiplier * cardBonus;
                 
-                // autoUpg.purchased * 1 click/sec (0.1/tick)
                 const acCredits = (autoUpg.purchased * 0.1) * powerPerClick;
                 state.credits += acCredits; 
                 state.totalCredits += acCredits;
@@ -1740,6 +1900,7 @@
                 document.getElementById('breach-timer').innerText = `${timeLeft}s`;
                 if (timeLeft <= 0) { 
                     breachMultiplier = 1.0; 
+                    document.getElementById('breach-timer').innerText = "0s";
                     document.getElementById('breach-active-multiplier').innerText = `MULT: 1.0x`; 
                 } else {
                     document.getElementById('breach-active-multiplier').innerText = `MULT: ${breachMultiplier.toFixed(1)}x`;
@@ -1762,30 +1923,98 @@
                 const btn = document.getElementById(`btn-buy-daemon-${d.id}`); 
                 if(btn) {
                     btn.disabled = state.credits < d.cost; 
+                    const canBuy = state.credits >= d.cost;
+                    btn.className = `px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}`;
                 }
             });
             upgrades.forEach(u => { 
                 const btn = document.getElementById(`btn-buy-upg-${u.id}`); 
-                if(btn && u.purchased < u.max) {
-                    btn.disabled = state.credits < u.costCredits || state.dataFragments < u.costData; 
+                if(btn) {
+                    const isMax = u.purchased >= u.max;
+                    const canBuy = state.credits >= u.costCredits && state.dataFragments >= u.costData;
+                    btn.disabled = isMax || !canBuy;
+                    btn.className = `w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}`;
                 }
             });
             cyberwares.forEach(i => { 
                 const btn = document.getElementById(`btn-buy-impl-${i.id}`); 
-                if(btn && !i.purchased) {
-                    btn.disabled = state.credits < i.costCredits || state.dataFragments < i.costData; 
+                if(btn) {
+                    const canBuy = state.credits >= i.costCredits && state.dataFragments >= i.costData;
+                    btn.disabled = i.purchased || !canBuy;
+                    btn.className = `w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${i.purchased?'bg-cyan-900/30 text-cyan-500 border border-cyan-500/20 cursor-not-allowed':(canBuy?'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}`;
                 }
             });
         }
 
+        function updateSkillCooldownUI() {
+            const now = Date.now();
+            const dashOverlay = document.getElementById('cooldown-dash');
+            const empOverlay = document.getElementById('cooldown-emp');
+            const empButton = document.getElementById('skill-btn-emp');
+
+            const dashRemaining = Math.max(0, state.lastDashUsed + state.dashCooldown - now);
+            if (dashOverlay) {
+                if (dashRemaining > 0) {
+                    dashOverlay.classList.remove('hidden');
+                    dashOverlay.innerText = `${Math.ceil(dashRemaining / 1000)}s`;
+                } else {
+                    dashOverlay.classList.add('hidden');
+                    dashOverlay.innerText = '';
+                }
+            }
+
+            if (!state.activeSkillsUnlocked.emp) {
+                if (empButton) empButton.classList.add('opacity-40');
+                if (empOverlay) {
+                    empOverlay.classList.remove('hidden');
+                    empOverlay.innerHTML = '<i class="fa-solid fa-lock text-sm"></i>';
+                }
+                return;
+            }
+
+            if (empButton) empButton.classList.remove('opacity-40');
+            const empRemaining = Math.max(0, state.lastEmpUsed + state.empCooldown - now);
+            if (empOverlay) {
+                if (empRemaining > 0) {
+                    empOverlay.classList.remove('hidden');
+                    empOverlay.innerText = `${Math.ceil(empRemaining / 1000)}s`;
+                } else {
+                    empOverlay.classList.add('hidden');
+                    empOverlay.innerText = '';
+                }
+            }
+        }
+
+        function updateAdminSummary() {
+            const box = document.getElementById('admin-state-summary');
+            if (!box) return;
+            const boughtCyber = cyberwares.filter(c => c.purchased).length;
+            const equippedCards = state.cards.filter(c => c.equipped).length;
+            const values = [
+                ['Nível', state.level],
+                ['XP', `${Math.round(state.xp)}/${state.xpNeeded}`],
+                ['C$/s', state.passiveCps.toFixed(2)],
+                ['DF', state.dataFragments],
+                ['Cards', `${state.cards.length} (${equippedCards} eq.)`],
+                ['Cyber', `${boughtCyber}/${cyberwares.length}`],
+                ['Daemons', daemons.reduce((sum, d) => sum + d.count, 0)],
+                ['NetWatch', `${Math.round(state.netwatchTracker)}%`]
+            ];
+            box.innerHTML = values.map(([label, value]) => `
+                <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
+                    <span class="block text-slate-500 uppercase text-[9px]">${label}</span>
+                    <span class="block text-red-300 font-black mt-1">${value}</span>
+                </div>
+            `).join('');
+        }
+
         function updateUI() {
-            // Header e Stats
-            document.getElementById('global-credits').innerText = `${state.credits.toFixed(2)} C$`;
-            document.getElementById('global-data').innerText = `${state.dataFragments} DF`;
-            document.getElementById('hacker-level').innerText = state.level;
-            document.getElementById('hacker-xp-bar').style.width = `${Math.min(100, Math.max(0, (state.xp / state.xpNeeded) * 100))}%`;
+            setText('global-credits', `${state.credits.toFixed(2)} C$`);
+            setText('global-data', `${state.dataFragments} DF`);
+            setText('hacker-level', state.level);
             
-            // Textos Dinâmicos XP/C$
+            setStyleWidth('hacker-xp-bar', `${Math.min(100, Math.max(0, (state.xp / state.xpNeeded) * 100))}%`);
+            
             const uXp = upgrades.find(u => u.type === 'xp_gain'); 
             const boostXp = uXp ? (1 + (uXp.purchased * uXp.value)) : 1;
             const actualXpClick = 0.5 * boostXp * state.xpMultiplier * (1 + getCardBonusMultiplier('xp')) * (1 + (state.prestigePerks.xp * 0.3));
@@ -1798,28 +2027,23 @@
             const pBon = 1 + (state.attributes.processing.value * 0.02); 
             const cBon = 1 + getCardBonusMultiplier('credits');
             
-            document.getElementById('display-click-val').innerText = `+${((1.0 + bClk) * pBon * state.multiplier * breachMultiplier * cBon).toFixed(2)} C$/clique`;
-            document.getElementById('stat-passive-rate').innerText = `${(state.passiveCps * pBon * state.multiplier * breachMultiplier * cBon).toFixed(2)}`;
-            document.getElementById('stat-attr-mod').innerText = `+${Math.round((pBon - 1) * 100)}%`;
-            document.getElementById('stat-conversion').innerText = `${(state.multiplier * breachMultiplier * cBon).toFixed(2)}x`;
-            document.getElementById('stat-ice-max').innerText = `${state.playerHpMax}`;
-            document.getElementById('tracker-pct').innerText = `${Math.round(state.netwatchTracker)}%`;
-            document.getElementById('tracker-bar').style.width = `${state.netwatchTracker}%`;
+            setText('display-click-val', `+${((1.0 + bClk) * pBon * state.multiplier * breachMultiplier * cBon).toFixed(2)} C$/clique`);
+            setText('stat-passive-rate', `${(state.passiveCps * pBon * state.multiplier * breachMultiplier * cBon).toFixed(2)}`);
+            setText('stat-attr-mod', `+${Math.round((pBon - 1) * 100)}%`);
+            setText('stat-conversion', `${(state.multiplier * breachMultiplier * cBon).toFixed(2)}x`);
+            setText('stat-ice-max', `${state.playerHpMax} HP`);
+            setText('tracker-pct', `${Math.round(state.netwatchTracker)}%`);
+            setStyleWidth('tracker-bar', `${state.netwatchTracker}%`);
+            const godToggle = document.getElementById('admin-godmode');
+            if (godToggle) godToggle.checked = state.godMode;
+            const oneHitToggle = document.getElementById('admin-onehit');
+            if (oneHitToggle) oneHitToggle.checked = state.oneHitKill;
+            const speedSlider = document.getElementById('slider-gamespeed');
+            if (speedSlider) speedSlider.value = state.gameSpeedMultiplier;
+            setText('slider-gamespeed-val', `${state.gameSpeedMultiplier.toFixed(2).replace('.00', '')}x`);
             
             updateSkillCooldownUI();
-
-            // Sincronizar classes ativas no bottom nav mobile
-            const tabs = ['dash', 'grid', 'implants', 'cards', 'market', 'prestige'];
-            tabs.forEach(t => {
-                const el = document.getElementById(`mobile-btn-tab-${t}`);
-                if(el) {
-                    if (document.getElementById(`tab-${t}`).classList.contains('active')) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
-                }
-            });
+            updateAdminSummary();
         }
 
 
@@ -1891,6 +2115,12 @@
             touchStartPos = null; 
             touchCurrentPos = null; 
         });
+
+        function setTargetCoords(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            player.targetX = clientX - rect.left;
+            player.targetY = clientY - rect.top;
+        }
 
         function startGridRun() {
             initAudio(); 
@@ -2011,8 +2241,7 @@
             player.x = Math.max(player.r, Math.min(canvas.width - player.r, player.x)); 
             player.y = Math.max(player.r, Math.min(canvas.height - player.r, player.y));
 
-            const aMod = 1 - (state.attributes.firefrequency.value * 0.05);
-            // Aplicado o Retorno decrescente calculado na function applyAttributeEffects, aqui so pega o state.fireRate final
+            // state.fireRate was already correctly modified in applyAttributeEffects
             if (now - lastFired >= state.fireRate / timeS && enemies.length > 0) {
                 let tg = null, md = Infinity; 
                 enemies.forEach(e => {
@@ -2201,7 +2430,8 @@
                 state.lastDashUsed = now; 
                 createExplosion(player.x, player.y, '#00f0ff', 12); 
                 playSynthSound('click'); 
-                updateSkillCooldownUI(); 
+                updateSkillCooldownUI();
+            updateAdminSummary(); 
             } else if (t === 'emp' && state.activeSkillsUnlocked.emp && now >= state.lastEmpUsed + state.empCooldown) { 
                 state.lastEmpUsed = now; 
                 for (let i = enemies.length - 1; i >= 0; i--) {
@@ -2213,7 +2443,8 @@
                 } 
                 createExplosion(player.x, player.y, '#f472b6', 25); 
                 playSynthSound('explosion'); 
-                updateSkillCooldownUI(); 
+                updateSkillCooldownUI();
+            updateAdminSummary(); 
             }
         }
 
@@ -2329,6 +2560,76 @@
         }
 
         // ================= ADMIN CHEATS =================
+        function injectStatPoints(v) {
+            state.statPoints += v;
+            renderDashboardAttributes();
+            updateUI();
+            showNotification(`+${v} pontos de atributo adicionados`, 'success');
+        }
+
+        function unlockAllCyberware() {
+            cyberwares.forEach(c => { c.purchased = true; });
+            state.activeSkillsUnlocked.emp = true;
+            syncCyberwareUnlocks();
+            applyAttributeEffects();
+            renderImplants();
+            updateUI();
+            showNotification('Cyberwares liberados no SYS_ROOT.', 'success');
+        }
+
+        function maxAllUpgrades() {
+            upgrades.forEach(u => {
+                u.purchased = u.max;
+                u.costCredits = Math.round(u.costCredits * Math.pow(1.45, Math.max(1, u.max)));
+                u.costData = Math.round(u.costData * Math.pow(1.35, Math.max(1, u.max)));
+            });
+            recalculatePassiveCps();
+            applyAttributeEffects();
+            renderUpgrades();
+            updateUI();
+            showNotification('Upgrades maximizados para teste.', 'success');
+        }
+
+        function giveStarterPack() {
+            state.credits += 50000;
+            state.dataFragments += 500;
+            for (let i = 0; i < 3; i++) state.cards.push(generateRandomCard(2, 4));
+            renderCardsTab();
+            updateUI();
+            showNotification('Pack de teste injetado.', 'success');
+        }
+
+        function resetRuntimeArena() {
+            stopGridRun(false);
+            bullets = [];
+            enemies = [];
+            particles = [];
+            lootItems = [];
+            runDataCollected = 0;
+            runKills = 0;
+            runXpEarned = 0;
+            player.hp = state.playerHpMax;
+            updateGridUI();
+            drawGrid();
+            showNotification('Arena reiniciada.', 'info');
+        }
+
+        function copySaveToClipboard() {
+            const payload = JSON.stringify({
+                state: state,
+                daemons: daemons.map(d => ({ id: d.id, count: d.count, cost: d.cost })),
+                upgrades: upgrades.map(u => ({ id: u.id, purchased: u.purchased, costCredits: u.costCredits, costData: u.costData })),
+                cyberwares: cyberwares.map(c => ({ id: c.id, purchased: c.purchased }))
+            }, null, 2);
+            const dump = document.getElementById('admin-save-dump');
+            if (dump) dump.value = payload;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(payload).then(() => showNotification('Save copiado para a área de transferência.', 'success')).catch(() => showNotification('Save exportado no campo de texto.', 'info'));
+            } else {
+                showNotification('Save exportado no campo de texto.', 'info');
+            }
+        }
+
         function toggleGodMode() { 
             state.godMode = document.getElementById('admin-godmode').checked; 
         }
@@ -2338,10 +2639,12 @@
         function injectCredits(v) { 
             state.credits += v; 
             updateUI(); 
+            showNotification(`+${v} C$ injetados`, 'success');
         }
         function injectData(v) { 
             state.dataFragments += v; 
             updateUI(); 
+            showNotification(`+${v} DF injetados`, 'success');
         }
         function injectXP(v) { 
             gainXP(v); 
@@ -2356,14 +2659,6 @@
         function changeGameSpeed(v) { 
             state.gameSpeedMultiplier = parseFloat(v); 
             document.getElementById('slider-gamespeed-val').innerText = v + 'x'; 
-        }
-        function changeSpawnRate(v) { 
-            state.enemySpawnRate = parseFloat(v) * 1000; 
-            document.getElementById('slider-spawnrate-val').innerText = v + 's'; 
-        }
-        function changePlayerSpeed(v) { 
-            state.playerSpeed = parseFloat(v); 
-            document.getElementById('slider-playerspeed-val').innerText = v; 
         }
 
         function initTelemetryChart() {
@@ -2469,4 +2764,3 @@
     </script>
 </body>
 </html>
-
