@@ -184,16 +184,42 @@
             user-select: text;
             -webkit-touch-callout: default;
         }
+        @keyframes localActionPop {
+            0% { opacity: 0; transform: translate(-50%, 4px) scale(0.82); }
+            14% { opacity: 1; transform: translate(-50%, -5px) scale(1.06); }
+            100% { opacity: 0; transform: translate(-50%, -26px) scale(0.92); }
+        }
+        .local-action-pop {
+            position: fixed;
+            z-index: 9998;
+            pointer-events: none;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            background: rgba(2, 6, 23, 0.90);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.20);
+            animation: localActionPop 700ms ease-out forwards;
+            white-space: nowrap;
+        }
+        .local-action-pop.success { color: #39ff14; border-color: rgba(57,255,20,0.35); box-shadow: 0 0 14px rgba(57,255,20,0.22); }
+        .local-action-pop.info { color: #00f0ff; border-color: rgba(0,240,255,0.35); }
+        .local-action-pop.warn { color: #fbbf24; border-color: rgba(251,191,36,0.35); box-shadow: 0 0 14px rgba(251,191,36,0.20); }
+        .local-action-pop.error { color: #fb7185; border-color: rgba(251,113,133,0.35); box-shadow: 0 0 14px rgba(251,113,133,0.20); }
+
         @media (max-width: 767px) {
             main {
-                padding-bottom: calc(52px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px))) !important;
+                padding-bottom: calc(48px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 30px))) !important;
             }
             .bottom-tabbar {
-                height: calc(46px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px))) !important;
-                min-height: 46px !important;
-                padding-top: 2px !important;
-                padding-bottom: max(0px, calc(env(safe-area-inset-bottom, 0px) - 18px)) !important;
-                align-items: flex-start !important;
+                height: calc(44px + max(0px, calc(env(safe-area-inset-bottom, 0px) - 30px))) !important;
+                min-height: 44px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                align-items: center !important;
                 overflow: visible;
                 transform: translateZ(0);
             }
@@ -207,10 +233,10 @@
             .bottom-tabbar .bottom-nav-item i {
                 line-height: 1;
                 margin-bottom: 1px;
-                font-size: 0.94rem;
+                font-size: 0.92rem;
             }
             .bottom-tabbar .bottom-nav-item span {
-                font-size: 0.50rem;
+                font-size: 0.49rem;
             }
         }
     </style>
@@ -827,7 +853,7 @@
     </div>
 
     <!-- BOTTOM TAB BAR (Navegação Mobile App-like) -->
-    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[46px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
+    <nav class="bottom-tabbar md:hidden fixed bottom-0 w-full h-[44px] bg-slate-950/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around z-50 safe-area-pb shadow-[0_-5px_20px_rgba(0,0,0,0.5)] select-none">
         <button onclick="switchTab('tab-dash')" id="mobile-btn-tab-dash" class="bottom-nav-item active relative">
             <i class="fa-solid fa-solar-panel"></i>
             <span>Cortex</span>
@@ -1028,8 +1054,8 @@
         };
 
         const daemons = [
-            { id: 'd_scripts', name: 'Scripts Automatizados', cost: 10, baseCps: 0.2, dataCps: 0, count: 0, icon: 'fa-square-terminal', color: 'text-cyan-400' },
-            { id: 'd_scrapers', name: 'Scrapers Globais', cost: 75, baseCps: 1.2, dataCps: 0, count: 0, icon: 'fa-magnifying-glass-chart', color: 'text-indigo-400' },
+            { id: 'd_scripts', name: 'Scripts Automatizados', cost: 10, baseCps: 0.2, dataCps: 0.15, count: 0, icon: 'fa-square-terminal', color: 'text-cyan-400' },
+            { id: 'd_scrapers', name: 'Scrapers Globais', cost: 75, baseCps: 1.2, dataCps: 0.35, count: 0, icon: 'fa-magnifying-glass-chart', color: 'text-indigo-400' },
             { id: 'd_packet_moles', name: 'Toupera de Pacotes', cost: 350, baseCps: 3.5, dataCps: 0.02, count: 0, icon: 'fa-database', color: 'text-fuchsia-300' },
             { id: 'd_neural_worms', name: 'Verme Neural', cost: 600, baseCps: 8.5, dataCps: 0.01, count: 0, icon: 'fa-worm', color: 'text-fuchsia-400' },
             { id: 'd_dark_mirror', name: 'Espelho Darknet', cost: 2500, baseCps: 24.0, dataCps: 0.06, count: 0, icon: 'fa-clone', color: 'text-violet-400' },
@@ -1452,40 +1478,53 @@
 
         // ================= FUNÇÕES DE UI E NOTIFICAÇÕES =================
         function showNotification(message, type = 'info') {
+            // Feedback global visual removido de propósito: compras e ativações usam mini pop-ups locais.
+            // Mantém histórico no terminal sem poluir a tela do jogador.
             if (type === 'levelup') return;
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            
-            const toast = document.createElement('div');
-            
-            let borderClass = 'border-slate-800'; 
-            let bgClass = 'bg-slate-900/90 backdrop-blur-xl rounded-xl'; 
-            let textClass = 'text-slate-300'; 
-            let icon = 'fa-info';
-            
-            if (type === 'success') { 
-                borderClass = 'neon-border-green border-emerald-500'; 
-                icon = 'fa-check text-emerald-400'; 
-            }
-            else if (type === 'error') { 
-                borderClass = 'neon-border-pink border-rose-500'; 
-                icon = 'fa-triangle-exclamation text-rose-500'; 
-            }
-            else if (type === 'levelup') { 
-                borderClass = 'neon-border-cyan border-cyan-500 animate-pulse'; 
-                icon = 'fa-arrow-up text-cyan-400'; 
-                textClass = 'text-cyan-400 font-extrabold'; 
-            }
+            const normalizedType = type === 'error' ? 'error' : (type === 'success' ? 'success' : (type === 'info' ? 'system' : 'alert'));
+            addSystemLog(String(message || '').toUpperCase(), normalizedType);
+        }
 
-            toast.className = `p-4 border ${borderClass} ${bgClass} shadow-2xl flex items-center gap-3 animate-fadeIn pointer-events-auto text-sm min-w-[200px] max-w-[280px] taptarget-glow`;
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i><span class="${textClass} flex-1 leading-tight">${message}</span>`;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => { 
-                toast.classList.add('opacity-0', 'translate-x-5'); 
-                setTimeout(() => toast.remove(), 250); 
-            }, 3000);
+        const localPopupThrottle = {};
+
+        function showLocalActionPopup(target, text, type = 'success') {
+            if (!target || !document.body) return;
+            const now = Date.now();
+            const key = `${target.id || target.className || 'target'}:${text}`;
+            if (localPopupThrottle[key] && now - localPopupThrottle[key] < 115) return;
+            localPopupThrottle[key] = now;
+
+            const rect = target.getBoundingClientRect ? target.getBoundingClientRect() : null;
+            if (!rect) return;
+
+            const pop = document.createElement('span');
+            pop.className = `local-action-pop ${type}`;
+            pop.textContent = text;
+            pop.style.left = `${rect.left + (rect.width / 2)}px`;
+            pop.style.top = `${Math.max(8, rect.top + 2)}px`;
+            document.body.appendChild(pop);
+            setTimeout(() => pop.remove(), 760);
+        }
+
+        function showLocalActionPopupById(id, text, type = 'success') {
+            const target = document.getElementById(id);
+            if (target) showLocalActionPopup(target, text, type);
+        }
+
+        function showMarketActionPopup(type, id, text, popupType = 'success') {
+            let targetId = '';
+            if (type === 'daemon') targetId = `btn-buy-daemon-${id}`;
+            if (type === 'upgrade') targetId = `btn-buy-upg-${id}`;
+            if (type === 'implant') targetId = `btn-buy-impl-${id}`;
+            const primary = targetId ? document.getElementById(targetId) : null;
+            if (primary) {
+                showLocalActionPopup(primary, text, popupType);
+                return;
+            }
+            if (type === 'upgrade') {
+                const quick = document.getElementById(`btn-quick-breach-${id}`);
+                if (quick) showLocalActionPopup(quick, text, popupType);
+            }
         }
 
         function addSystemLog(text, type = 'info') {
@@ -1554,6 +1593,9 @@
 
             if (tabId === 'tab-cards') {
                 refreshCardInventoryUI();
+            } else if (tabId === 'tab-implants') {
+                renderImplants();
+                updatePurchaseButtons();
             } else if (tabId === 'tab-market') {
                 renderDaemons();
                 renderUpgrades();
@@ -1820,14 +1862,16 @@
                     const breachDfReward = Math.max(1, Math.round((8 + Math.floor(state.level / 3) + getUpgradeStackValue('breach_df_bonus') + getPurchasedCyberValue('breach_df_bonus') + (getPrestigePerkLevel('breach_df') * 15)) * getDataYieldMultiplier()));
                     state.dataFragments += breachDfReward;
                     playSynthSound('powerup'); 
-                    showNotification(`BREACH CONCLUÍDO! ${breachMultiplier.toFixed(2)}x C$ + ${breachDfReward} DF`, "success");
+                    showLocalActionPopupById('breach-active-multiplier', `+${breachDfReward} DF / ${breachMultiplier.toFixed(2)}x`, 'warn');
+                    addSystemLog(`BREACH CONCLUÍDO: ${breachMultiplier.toFixed(2)}x C$ + ${breachDfReward} DF.`, 'success');
                     updateUI();
                     
                     setTimeout(generateBreachProtocol, 1500);
                 }
             } else {
                 playSynthSound('damage'); 
-                showNotification("FALHA DE BUFFER!", "error");
+                showLocalActionPopupById('breach-status', 'FALHA', 'error');
+                addSystemLog('FALHA DE BUFFER NO BREACH.', 'error');
                 setTimeout(generateBreachProtocol, 1000);
             }
         }
@@ -1861,7 +1905,7 @@
                         </div>
                         <div class="flex justify-between items-center pt-1">
                             <div class="flex flex-col"><span class="text-[9px] text-slate-500 font-bold uppercase">Rendimento</span><span class="text-emerald-400 font-bold text-xs font-mono-cyber">${(d.count*d.baseCps).toFixed(1)} C$/s</span>${d.dataCps ? `<span class="text-fuchsia-400 font-bold text-xs font-mono-cyber">${(d.count*d.dataCps).toFixed(2)} DF/s</span>` : ''}</div>
-                            <button ${canBuy ? getHoldBuyAttrs('daemon', d.id) : ''} id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
+                            <button ${getHoldBuyAttrs('daemon', d.id)} id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
                         </div>
                     </div>
                 `;
@@ -1872,6 +1916,7 @@
             const d = daemons.find(x => x.id === id);
             if (!d || state.credits < d.cost) return false;
             
+            showMarketActionPopup('daemon', id, '+1', 'success');
             state.credits -= d.cost; 
             d.count++; 
             d.cost *= 1.15;
@@ -1884,7 +1929,7 @@
             
             if (!silent) {
                 playSynthSound('click'); 
-                showNotification(`Adquirido: ${d.name}`, 'success');
+                addSystemLog(`DAEMON EVOLUÍDO: ${d.name} x${d.count}.`, 'success');
             }
             return true;
         }
@@ -2009,7 +2054,7 @@
                                 <span class="text-slate-500">CUSTO:</span>
                                 <span class="text-amber-400">${isMax?'---':`${u.costCredits.toFixed(0)} C$ ${u.costData>0?`+ ${u.costData} DF`:''}`}</span>
                             </div>
-                            <button ${canBuy && !isMax ? getHoldBuyAttrs('upgrade', u.id) : ''} id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
+                            <button ${!isMax ? getHoldBuyAttrs('upgrade', u.id) : ''} id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
                         </div>
                     </div>
                 `;
@@ -2020,6 +2065,7 @@
             const u = upgrades.find(x => x.id === id);
             if (!u || u.purchased >= u.max || state.credits < u.costCredits || state.dataFragments < u.costData) return false;
             
+            showMarketActionPopup('upgrade', id, '+1', 'success');
             state.credits -= u.costCredits; 
             state.dataFragments -= u.costData; 
             u.purchased++;
@@ -2038,7 +2084,7 @@
             
             if (!silent) {
                 playSynthSound('powerup'); 
-                showNotification(`Melhoria aplicada!`, 'success');
+                addSystemLog(`CORE ATUALIZADO: ${u.name} ${u.purchased}/${u.max}.`, 'success');
             }
             return true;
         }
@@ -2083,6 +2129,7 @@
             const i = cyberwares.find(x => x.id === id);
             if (!i || i.purchased || state.credits < i.costCredits || state.dataFragments < i.costData) return;
             
+            showMarketActionPopup('implant', id, 'ATIVO', 'info');
             state.credits -= i.costCredits; 
             state.dataFragments -= i.costData; 
             i.purchased = true;
@@ -2097,7 +2144,7 @@
             updateUI();
             
             playSynthSound('powerup'); 
-            showNotification(`Implante Conectado!`, 'success');
+            addSystemLog(`CYBERWARE CONECTADO: ${i.name}.`, 'success');
         }
 
 
@@ -2534,7 +2581,7 @@
         }
 
         function getHoldBuyAttrs(type, id) {
-            return `data-hold-type="${type}" data-hold-id="${id}" onpointerdown="startMarketHoldBuy(event, '${type}', '${id}')" ontouchstart="startMarketHoldBuy(event, '${type}', '${id}')" onmousedown="startMarketHoldBuy(event, '${type}', '${id}')" onpointerup="stopMarketHoldBuy()" ontouchend="stopMarketHoldBuy()" onmouseup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" ontouchcancel="stopMarketHoldBuy()" onmouseleave="stopMarketHoldBuy()" oncontextmenu="return false"`;
+            return `data-hold-type="${type}" data-hold-id="${id}" onpointerdown="startMarketHoldBuy(event, '${type}', '${id}')" onpointerup="stopMarketHoldBuy()" onpointercancel="stopMarketHoldBuy()" onpointerleave="stopMarketHoldBuy()" oncontextmenu="return false"`;
         }
 
         function renderBreachQuickUpgrades() {
@@ -2548,7 +2595,7 @@
                 const canBuy = !isMax && state.credits >= u.costCredits && state.dataFragments >= u.costData;
                 const title = id === 'u_breach_amplifier' ? '+Boost' : id === 'u_breach_timer' ? '+Tempo' : id === 'u_breach_chain' ? '+Acúmulo' : '+DF';
                 return `
-                    <button ${canBuy ? getHoldBuyAttrs('upgrade', id) : ''} id="btn-quick-breach-${id}" class="p-2 rounded-lg border text-left taptarget-glow ${isMax ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-400' : (canBuy ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-black/40 border-white/5 text-slate-600 cursor-not-allowed')}" ${canBuy ? '' : 'disabled'}>
+                    <button ${!isMax ? getHoldBuyAttrs('upgrade', id) : ''} id="btn-quick-breach-${id}" class="p-2 rounded-lg border text-left taptarget-glow ${isMax ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-400' : (canBuy ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-black/40 border-white/5 text-slate-600 cursor-not-allowed')}" ${canBuy ? '' : 'disabled'}>
                         <span class="block text-[10px] font-black uppercase">${isMax ? 'MAX' : title} <span class="font-mono-cyber">${u.purchased}/${u.max}</span></span>
                         <span class="block text-[9px] font-mono-cyber mt-1">${isMax ? 'Instalado' : `${Math.round(u.costCredits)} C$${u.costData > 0 ? ` + ${u.costData} DF` : ''}`}</span>
                     </button>
