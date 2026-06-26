@@ -239,6 +239,52 @@
                 font-size: 0.49rem;
             }
         }
+
+
+        /* V6 Balance & Polish: números grandes, cartões consistentes e leitura mobile */
+        .num-compact, .money-compact, .resource-compact {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-variant-numeric: tabular-nums;
+        }
+        .line-clamp-two {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .softcap-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            background: rgba(251, 191, 36, 0.08);
+            border: 1px solid rgba(251, 191, 36, 0.20);
+            color: #fbbf24;
+            font-family: 'Fira Code', monospace;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .contract-card-active {
+            border-color: rgba(251, 191, 36, 0.45) !important;
+            box-shadow: inset 0 0 16px rgba(251, 191, 36, 0.08);
+        }
+        @media (max-width: 420px) {
+            .num-compact, .money-compact, .resource-compact {
+                max-width: 112px;
+                display: inline-block;
+                vertical-align: bottom;
+            }
+            #global-credits, #global-data {
+                max-width: 122px;
+            }
+            .glass-panel { border-radius: 0.86rem; }
+        }
     </style>
 </head>
 <body class="crt-scanlines bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden">
@@ -415,6 +461,20 @@
                                 <div class="grid grid-cols-4 md:grid-cols-6 gap-2" id="breach-grid"></div>
                             </div>
 
+                            <!-- Contratos NetWatch: progressão endgame com risco/recompensa -->
+                            <div class="glass-panel p-5 flex flex-col gap-4">
+                                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                    <h2 class="text-sm font-black text-rose-400 uppercase tracking-widest flex items-center gap-2">
+                                        <i class="fa-solid fa-user-secret text-rose-500"></i> CONTRATOS NETWATCH
+                                    </h2>
+                                    <span id="contract-status-pill" class="text-[10px] text-slate-500 font-bold font-mono-cyber uppercase">Livre</span>
+                                </div>
+                                <p class="text-[12px] text-slate-400 leading-relaxed">
+                                    Missões passivas de risco/recompensa. Você inicia um contrato, aguarda o tempo e resgata C$, DF e chance de chip.
+                                </p>
+                                <div id="contracts-container" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+                            </div>
+
                         </div>
 
                         <!-- Coluna Direita (Status e Logs) -->
@@ -437,6 +497,10 @@
                                 <div class="flex justify-between py-1 border-b border-white/5">
                                     <span class="text-slate-500">Múlt. Final:</span>
                                     <span id="stat-conversion" class="text-fuchsia-400 font-bold">1.00x</span>
+                                </div>
+                                <div class="flex justify-between py-1 border-b border-white/5">
+                                    <span class="text-slate-500">Softcap:</span>
+                                    <span id="stat-softcap" class="text-amber-400 font-bold">OFF</span>
                                 </div>
                                 <div class="flex justify-between py-1 border-b border-white/5">
                                     <span class="text-slate-500">I.C.E Máximo:</span>
@@ -726,6 +790,21 @@
                                         <div class="w-10 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
                                     </label>
                                 </div>
+                                <div class="flex items-center justify-between p-3 bg-black/40 rounded-xl border border-amber-500/10">
+                                    <div class="flex flex-col pr-3">
+                                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wide">Softcap Econômico</span>
+                                        <span class="text-[10px] text-slate-500">Liga/desliga o freio suave de late game</span>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="admin-softcap" onchange="toggleSoftcap()" class="sr-only peer">
+                                        <div class="w-10 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="simulateOfflineGain(1)" class="p-2 rounded-lg bg-black/40 border border-cyan-500/20 text-cyan-300 font-bold text-[10px] uppercase taptarget-glow">Simular 1h</button>
+                                    <button onclick="simulateOfflineGain(6)" class="p-2 rounded-lg bg-black/40 border border-cyan-500/20 text-cyan-300 font-bold text-[10px] uppercase taptarget-glow">Simular 6h</button>
+                                    <button onclick="simulateOfflineGain(24)" class="p-2 rounded-lg bg-black/40 border border-cyan-500/20 text-cyan-300 font-bold text-[10px] uppercase taptarget-glow">Simular 24h</button>
+                                </div>
                                 <div class="mt-2">
                                     <div class="flex justify-between text-xs font-mono-cyber mb-2 text-slate-400">
                                         <span>TIMESCALE:</span>
@@ -818,6 +897,9 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <button onclick="injectStatPoints(25)" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-400 font-bold text-xs uppercase taptarget-glow">+25 Pontos</button>
                                 <button onclick="giveStarterPack()" class="p-3 rounded-lg bg-black/40 border border-yellow-500/30 text-yellow-400 font-bold text-xs uppercase taptarget-glow">Pack Teste</button>
+                                <button onclick="setTestPhase('mid')" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-300 font-bold text-xs uppercase taptarget-glow">Mid Game</button>
+                                <button onclick="setTestPhase('late')" class="p-3 rounded-lg bg-black/40 border border-fuchsia-500/30 text-fuchsia-300 font-bold text-xs uppercase taptarget-glow">Late Game</button>
+                                <button onclick="setTestPhase('end')" class="p-3 rounded-lg bg-black/40 border border-amber-500/30 text-amber-300 font-bold text-xs uppercase taptarget-glow col-span-2">Endgame Lab</button>
                                 <button onclick="unlockAllCyberware()" class="p-3 rounded-lg bg-black/40 border border-cyan-500/30 text-cyan-400 font-bold text-xs uppercase taptarget-glow col-span-2">Liberar Cyberware</button>
                                 <button onclick="maxAllUpgrades()" class="p-3 rounded-lg bg-black/40 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase taptarget-glow col-span-2">Max Upgrades</button>
                                 <button onclick="resetRuntimeArena()" class="p-3 rounded-lg bg-slate-950 border border-slate-700 text-slate-300 font-bold text-xs uppercase taptarget-glow col-span-2">Resetar Arena</button>
@@ -1035,6 +1117,8 @@
             bossSpawnChance: 0.06,
             enemyDifficultyMultiplier: 1.0,
             netwatchRateMultiplier: 1.0,
+            balanceSoftcapEnabled: true,
+            contracts: { activeId: null, startedAt: 0, endsAt: 0 },
             xpMultiplier: 1.0,
             
             activeSkillsUnlocked: { 
@@ -1158,7 +1242,10 @@
             { id: 'p_auto', name: 'Mãos Invisíveis', desc: '+2 Hacks automáticos por segundo/lvl.', purchased: 0, max: 10, icon: 'fa-hand-sparkles' },
             { id: 'p_regen', name: 'Medula de Backup', desc: '+0.8 HP/s na Arena/lvl.', purchased: 0, max: 12, icon: 'fa-heart-pulse' },
             { id: 'p_start_cache', name: 'Cache Inicial', desc: 'Começa cada ciclo com +25k C$/lvl por HN.', purchased: 0, max: 10, icon: 'fa-vault' },
-            { id: 'p_start_frag', name: 'Bolso de Fragmentos', desc: 'Começa cada ciclo com +50 DF/lvl por HN.', purchased: 0, max: 10, icon: 'fa-gem' }
+            { id: 'p_start_frag', name: 'Bolso de Fragmentos', desc: 'Começa cada ciclo com +50 DF/lvl por HN.', purchased: 0, max: 10, icon: 'fa-gem' },
+            { id: 'p_stability', name: 'Estabilizador Neural', desc: '+8% limite suave de late game/lvl.', purchased: 0, max: 15, icon: 'fa-scale-balanced' },
+            { id: 'p_overclock_yield', name: 'Ritual de Núcleo', desc: '+1 token bônus a cada 3 lvls acima do requisito/lvl.', purchased: 0, max: 8, icon: 'fa-arrow-up-right-dots' },
+            { id: 'p_contracts', name: 'Contratante Fantasma', desc: '+25% recompensa e -5% risco em contratos/lvl.', purchased: 0, max: 10, icon: 'fa-file-signature' }
         ];
 
         // ================= SISTEMA DE SAVE / LOAD =================
@@ -1166,7 +1253,7 @@
         let currentMarketTab = 'daemons';
 
         const initialLogs = [
-            'BOOT SEQUENCE: NEON OVERDRIVE v8.1',
+            'BOOT SEQUENCE: NEON OVERDRIVE v8.6 BALANCE & POLISH',
             'CORTEX ONLINE. CANAL CRIPTOGRÁFICO ESTÁVEL.',
             'MÓDULOS: GRID RUN, CYBERWARE, DECK, MERCADO E SYS_ROOT CARREGADOS.',
             'DICA: use o Breach Protocol para ativar multiplicador temporário.'
@@ -1184,6 +1271,178 @@
         function getPrestigePerkMax(key) {
             const perk = prestigePerks.find(p => p.id.replace('p_', '') === key);
             return perk ? perk.max : 10;
+        }
+
+        const COMPACT_SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
+
+        function formatNumber(value, decimals = 2) {
+            const num = Number(value) || 0;
+            const sign = num < 0 ? '-' : '';
+            let abs = Math.abs(num);
+            if (abs === 0) return '0';
+            if (abs < 1000) {
+                if (abs >= 100) return sign + Math.round(abs).toLocaleString('pt-BR');
+                if (abs >= 10) return sign + abs.toFixed(Math.min(decimals, 1)).replace('.', ',').replace(/,0$/, '');
+                return sign + abs.toFixed(decimals).replace('.', ',').replace(/,?0+$/, '');
+            }
+            let idx = 0;
+            while (abs >= 1000 && idx < COMPACT_SUFFIXES.length - 1) {
+                abs /= 1000;
+                idx++;
+            }
+            const shownDecimals = abs >= 100 ? 0 : abs >= 10 ? 1 : decimals;
+            return `${sign}${abs.toFixed(shownDecimals).replace('.', ',').replace(/,0+$/, '')}${COMPACT_SUFFIXES[idx]}`;
+        }
+
+        function formatCredits(value) { return `${formatNumber(value, 2)} C$`; }
+        function formatData(value) { return `${formatNumber(value, 2)} DF`; }
+        function formatRate(value, suffix = '/s') { return `${formatNumber(value, 2)}${suffix}`; }
+
+        function getPrestigeRequirement() {
+            const hn = Number(state.prestigeLevel) || 0;
+            return Math.round(30 + (hn * 10) + Math.pow(hn, 1.72) * 5.5);
+        }
+
+        function getPrestigeTokenReward() {
+            const req = getPrestigeRequirement();
+            const extraLevels = Math.max(0, state.level - req);
+            const milestoneBonus = Math.floor(state.level / 50);
+            const ritualBonus = Math.floor(extraLevels / 3) * getPrestigePerkLevel('overclock_yield');
+            return Math.max(1, 1 + milestoneBonus + ritualBonus);
+        }
+
+        function getSoftcapPivot(type = 'credit') {
+            const hn = Math.max(0, Number(state.prestigeLevel) || 0);
+            const stability = getPrestigePerkLevel('stability');
+            const relief = 1 + (stability * 0.08);
+            if (type === 'click') return 250000 * Math.pow(1.62, Math.min(hn, 32)) * relief;
+            if (type === 'passive') return 900000 * Math.pow(1.70, Math.min(hn, 32)) * relief;
+            if (type === 'multiplier') return 8 + (hn * 1.45) + (stability * 0.75);
+            return 500000 * Math.pow(1.65, Math.min(hn, 32)) * relief;
+        }
+
+        function softcapValue(value, type = 'credit') {
+            const raw = Number(value) || 0;
+            if (!state.balanceSoftcapEnabled || raw <= 0) return raw;
+            const pivot = getSoftcapPivot(type);
+            if (raw <= pivot) return raw;
+            const exponent = type === 'multiplier' ? 0.58 : 0.64;
+            return pivot * Math.pow(raw / pivot, exponent);
+        }
+
+        function getSoftcapReduction(raw, capped) {
+            if (!raw || raw <= 0) return 0;
+            return Math.max(0, Math.min(0.99, 1 - (capped / raw)));
+        }
+
+        function getEffectiveCreditMultiplier() {
+            return softcapValue(getEffectiveGlobalMultiplier() * breachMultiplier * (1 + getCardBonusMultiplier('credits')), 'multiplier');
+        }
+
+        function getClickCreditValueRaw() {
+            const upg = upgrades.find(x => x.type === 'click_power');
+            const bonusPower = upg ? upg.purchased * upg.value : 0;
+            const procBonus = 1 + (state.attributes.processing.value * 0.02);
+            return (1.0 + bonusPower) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * (1 + getCardBonusMultiplier('credits')) * (1 + getPrestigePerkLevel('click') * 0.25);
+        }
+
+        function getClickCreditValue() { return softcapValue(getClickCreditValueRaw(), 'click'); }
+
+        function getPassiveCreditPerSecondRaw() {
+            const procBonus = 1 + (state.attributes.processing.value * 0.02);
+            return state.passiveCps * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * (1 + getCardBonusMultiplier('credits'));
+        }
+
+        function getPassiveCreditPerSecond() { return softcapValue(getPassiveCreditPerSecondRaw(), 'passive'); }
+
+        function getCurrentSoftcapLabel() {
+            if (!state.balanceSoftcapEnabled) return 'OFF';
+            const rawClick = Math.max(0.0001, getClickCreditValueRaw());
+            const cappedClick = getClickCreditValue();
+            const reduction = getSoftcapReduction(rawClick, cappedClick);
+            return reduction > 0.005 ? `-${Math.round(reduction * 100)}%` : 'OK';
+        }
+
+        const netwatchContracts = [
+            { id: 'c_fast', name: 'Varredura Relâmpago', durationMs: 3 * 60 * 1000, risk: 0.06, creditFactor: 180, dataBase: 18, cardChance: 0.06, icon: 'fa-bolt' },
+            { id: 'c_deep', name: 'Roubo Deepnet', durationMs: 18 * 60 * 1000, risk: 0.16, creditFactor: 1150, dataBase: 120, cardChance: 0.16, icon: 'fa-vault' },
+            { id: 'c_blackwall', name: 'Incursão Blackwall', durationMs: 60 * 60 * 1000, risk: 0.32, creditFactor: 5200, dataBase: 620, cardChance: 0.34, icon: 'fa-skull-crossbones' }
+        ];
+
+        function getContractReward(contract) {
+            const contractBoost = 1 + (getPrestigePerkLevel('contracts') * 0.25);
+            const levelBoost = Math.max(1, Math.pow(Math.max(1, state.level), 1.18));
+            const creditReward = softcapValue(contract.creditFactor * levelBoost * Math.max(1, state.prestigeLevel + 1) * contractBoost, 'credit');
+            const dataReward = Math.round((contract.dataBase + Math.floor(state.level * 0.8)) * getDataYieldMultiplier() * contractBoost);
+            const risk = Math.max(0.02, contract.risk * (1 - getPrestigePerkLevel('contracts') * 0.05));
+            const cardChance = Math.min(0.90, contract.cardChance * (state.luckMultiplier || 1) * contractBoost);
+            return { creditReward, dataReward, risk, cardChance };
+        }
+
+        function getContractRemainingMs() {
+            if (!state.contracts || !state.contracts.activeId) return 0;
+            return Math.max(0, (Number(state.contracts.endsAt) || 0) - Date.now());
+        }
+
+        function renderContracts() {
+            const container = document.getElementById('contracts-container');
+            const pill = document.getElementById('contract-status-pill');
+            if (!container) return;
+            normalizeStateDefaults();
+            const active = state.contracts.activeId ? netwatchContracts.find(c => c.id === state.contracts.activeId) : null;
+            const remaining = getContractRemainingMs();
+            if (pill) {
+                pill.textContent = active ? (remaining > 0 ? `${Math.ceil(remaining / 60000)}min` : 'Resgatar') : 'Livre';
+                pill.className = active ? 'softcap-pill' : 'text-[10px] text-slate-500 font-bold font-mono-cyber uppercase';
+            }
+            container.innerHTML = netwatchContracts.map(contract => {
+                const rewards = getContractReward(contract);
+                const isActive = active && active.id === contract.id;
+                const lockedByOther = active && active.id !== contract.id;
+                const canClaim = isActive && remaining <= 0;
+                const mins = Math.round(contract.durationMs / 60000);
+                const action = canClaim ? 'RESGATAR' : (isActive ? `${Math.ceil(remaining / 1000)}s` : 'INICIAR');
+                const handler = canClaim ? `claimNetwatchContract()` : `startNetwatchContract('${contract.id}')`;
+                return `
+                    <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex flex-col gap-3 ${isActive ? 'contract-card-active' : ''}">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${contract.icon} text-rose-400"></i>
+                            <span class="font-black text-slate-100 uppercase text-xs line-clamp-two">${contract.name}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 font-mono-cyber leading-relaxed">
+                            ${mins}min • ${formatCredits(rewards.creditReward)} • ${formatData(rewards.dataReward)} • risco ${Math.round(rewards.risk * 100)}%
+                        </div>
+                        <button onclick="${handler}" ${lockedByOther ? 'disabled' : ''} class="w-full py-2 rounded-lg text-[10px] font-black uppercase taptarget-glow ${canClaim ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : isActive ? 'bg-black/60 text-slate-500 border border-white/5 cursor-not-allowed' : 'bg-rose-500/10 text-rose-300 border border-rose-500/20'}">
+                            ${action}
+                        </button>
+                    </div>`;
+            }).join('');
+        }
+
+        function startNetwatchContract(id) {
+            const contract = netwatchContracts.find(c => c.id === id);
+            if (!contract || (state.contracts && state.contracts.activeId)) return;
+            state.contracts = { activeId: id, startedAt: Date.now(), endsAt: Date.now() + contract.durationMs };
+            showLocalActionPopupById('contract-status-pill', 'ON', 'warn');
+            renderContracts();
+            saveGame(false);
+        }
+
+        function claimNetwatchContract() {
+            const contract = state.contracts && state.contracts.activeId ? netwatchContracts.find(c => c.id === state.contracts.activeId) : null;
+            if (!contract || getContractRemainingMs() > 0) return;
+            const rewards = getContractReward(contract);
+            state.credits += rewards.creditReward;
+            state.totalCredits += rewards.creditReward;
+            state.dataFragments += rewards.dataReward;
+            if (Math.random() < rewards.risk) state.netwatchTracker = Math.min(100, state.netwatchTracker + Math.round(rewards.risk * 45));
+            if (Math.random() < rewards.cardChance) addCardToInventory(generateRandomCard(2, 5), false);
+            state.contracts = { activeId: null, startedAt: 0, endsAt: 0 };
+            showLocalActionPopupById('contract-status-pill', `+${formatData(rewards.dataReward)}`, 'success');
+            renderContracts();
+            refreshCardInventoryUI();
+            updateUI();
+            saveGame(false);
         }
 
         function getBreachBaseMultiplier() {
@@ -1270,6 +1529,7 @@
                 bossSpawnChance: 0.06,
                 enemyDifficultyMultiplier: 1.0,
                 netwatchRateMultiplier: 1.0,
+                balanceSoftcapEnabled: true,
                 xpMultiplier: 1.0,
                 maxEquippedCards: 5,
                 prestigeLevel: 0,
@@ -1314,6 +1574,11 @@
             state.bossSpawnChance = Math.min(0.35, Math.max(0, Number.isFinite(Number(state.bossSpawnChance)) ? Number(state.bossSpawnChance) : 0.06));
             state.enemyDifficultyMultiplier = Math.min(4, Math.max(0.25, Number.isFinite(Number(state.enemyDifficultyMultiplier)) ? Number(state.enemyDifficultyMultiplier) : 1));
             state.netwatchRateMultiplier = Math.min(4, Math.max(0, Number.isFinite(Number(state.netwatchRateMultiplier)) ? Number(state.netwatchRateMultiplier) : 1));
+            state.balanceSoftcapEnabled = state.balanceSoftcapEnabled !== false;
+            if (!state.contracts || typeof state.contracts !== 'object') state.contracts = { activeId: null, startedAt: 0, endsAt: 0 };
+            state.contracts.activeId = state.contracts.activeId || null;
+            state.contracts.startedAt = Number(state.contracts.startedAt) || 0;
+            state.contracts.endsAt = Number(state.contracts.endsAt) || 0;
             state.gameSpeedMultiplier = Math.min(3, Math.max(0.25, Number(state.gameSpeedMultiplier) || 1));
             state.dataBuffer = Math.max(0, Number(state.dataBuffer) || 0);
             state.maxEquippedCards = getMaxEquippedCards();
@@ -1462,6 +1727,7 @@
             renderDashboardAttributes();
             renderPrestigeTab();
             renderCardsTab();
+            renderContracts();
             
             // Corrige o bug das abas que ficavam invisíveis no mobile ao iniciar
             switchTab('tab-dash');
@@ -1602,6 +1868,8 @@
                 updatePurchaseButtons();
             } else if (tabId === 'tab-prestige') {
                 renderPrestigeTab();
+            } else if (tabId === 'tab-dash') {
+                renderContracts();
             } else if (tabId === 'tab-admin') {
                 syncAdminControlValues();
                 updateAdminSummary();
@@ -1899,13 +2167,13 @@
                         <div class="flex items-center justify-between border-b border-white/5 pb-2">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center"><i class="fa-solid ${d.icon} ${d.color} text-base"></i></div>
-                                <div><h4 class="font-black text-slate-100">${d.name}</h4><p class="text-[10px] text-slate-400 font-mono-cyber">Base: +${d.baseCps.toFixed(1)} C$/s${d.dataCps ? ` +${d.dataCps.toFixed(2)} DF/s` : ''}</p></div>
+                                <div><h4 class="font-black text-slate-100">${d.name}</h4><p class="text-[10px] text-slate-400 font-mono-cyber line-clamp-two">Base: +${formatNumber(d.baseCps, 1)} C$/s${d.dataCps ? ` +${formatNumber(d.dataCps, 2)} DF/s` : ''}</p></div>
                             </div>
                             <span class="text-xl font-black text-emerald-400 px-2">x${d.count}</span>
                         </div>
                         <div class="flex justify-between items-center pt-1">
-                            <div class="flex flex-col"><span class="text-[9px] text-slate-500 font-bold uppercase">Rendimento</span><span class="text-emerald-400 font-bold text-xs font-mono-cyber">${(d.count*d.baseCps).toFixed(1)} C$/s</span>${d.dataCps ? `<span class="text-fuchsia-400 font-bold text-xs font-mono-cyber">${(d.count*d.dataCps).toFixed(2)} DF/s</span>` : ''}</div>
-                            <button ${getHoldBuyAttrs('daemon', d.id)} id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${d.cost.toFixed(0)} C$</button>
+                            <div class="flex flex-col"><span class="text-[9px] text-slate-500 font-bold uppercase">Rendimento</span><span class="text-emerald-400 font-bold text-xs font-mono-cyber">${formatNumber(d.count*d.baseCps, 1)} C$/s</span>${d.dataCps ? `<span class="text-fuchsia-400 font-bold text-xs font-mono-cyber">${formatNumber(d.count*d.dataCps, 2)} DF/s</span>` : ''}</div>
+                            <button ${getHoldBuyAttrs('daemon', d.id)} id="btn-buy-daemon-${d.id}" class="px-4 py-2 rounded-lg font-black uppercase font-mono-cyber text-xs transition-colors taptarget-glow ${canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed'}" ${canBuy?'':'disabled'}>${formatCredits(d.cost)}</button>
                         </div>
                     </div>
                 `;
@@ -1919,7 +2187,7 @@
             showMarketActionPopup('daemon', id, '+1', 'success');
             state.credits -= d.cost; 
             d.count++; 
-            d.cost *= 1.15;
+            d.cost *= 1.18;
             
             recalculatePassiveCps(); 
             if (!deferRender) {
@@ -2052,7 +2320,7 @@
                         <div class="flex flex-col gap-2 pt-3 border-t border-white/5 relative z-10">
                             <div class="flex justify-between text-[10px] font-mono-cyber font-bold">
                                 <span class="text-slate-500">CUSTO:</span>
-                                <span class="text-amber-400">${isMax?'---':`${u.costCredits.toFixed(0)} C$ ${u.costData>0?`+ ${u.costData} DF`:''}`}</span>
+                                <span class="text-amber-400">${isMax?'---':`${formatCredits(u.costCredits)} ${u.costData>0?`+ ${formatData(u.costData)}`:''}`}</span>
                             </div>
                             <button ${!isMax ? getHoldBuyAttrs('upgrade', u.id) : ''} id="btn-buy-upg-${u.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isMax?'bg-emerald-900/50 text-emerald-500 border border-emerald-500/20 cursor-not-allowed':(canBuy?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isMax?'':'disabled'}>${isMax?'MAXIMIZADO':'INSTALAR UPDATE'}</button>
                         </div>
@@ -2070,8 +2338,8 @@
             state.dataFragments -= u.costData; 
             u.purchased++;
             
-            u.costCredits *= 1.45; 
-            u.costData = Math.round(u.costData * 1.35);
+            u.costCredits *= 1.52; 
+            u.costData = Math.round(u.costData * 1.40);
             
             recalculatePassiveCps(); 
             applyAttributeEffects(); 
@@ -2116,7 +2384,7 @@
                         <div class="flex flex-col gap-2 pt-3 border-t border-white/5 relative z-10">
                             <div class="flex justify-between text-[10px] font-mono-cyber font-bold">
                                 <span class="text-slate-500">CUSTO IMPLANTE:</span>
-                                <span class="text-amber-400">${isBought?'---':`${i.costCredits} C$ + ${i.costData} DF`}</span>
+                                <span class="text-amber-400">${isBought?'---':`${formatCredits(i.costCredits)} + ${formatData(i.costData)}`}</span>
                             </div>
                             <button onclick="buyImplant('${i.id}')" id="btn-buy-impl-${i.id}" class="w-full text-center py-2.5 rounded-lg text-xs font-black uppercase font-mono-cyber taptarget-glow transition-colors ${isBought?'bg-cyan-900/30 text-cyan-500 border border-cyan-500/20 cursor-not-allowed':(canBuy?'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/40':'bg-black/40 text-slate-600 border border-white/5 cursor-not-allowed')}" ${canBuy&&!isBought?'':'disabled'}>${isBought?'BIOLINK CONECTADO':'ENXERTAR CYBERWARE'}</button>
                         </div>
@@ -2372,7 +2640,7 @@
             document.getElementById('display-prestige-count').innerText = `${state.prestigeLevel} HN`;
             document.getElementById('display-prestige-mult').innerText = `+${state.prestigeLevel * 100}% Mult. Global`;
             
-            const req = 15 + (state.prestigeLevel * 5);
+            const req = getPrestigeRequirement();
             document.getElementById('prestige-req-level').innerText = `LVL ${req}`; 
             document.getElementById('prestige-curr-level').innerText = `LVL ${state.level}`;
             
@@ -2423,11 +2691,12 @@
         }
 
         function executePrestigeReset() {
-            const req = 15 + (state.prestigeLevel * 5);
+            const req = getPrestigeRequirement();
             if (state.level < req) return;
             
+            const earnedTokens = getPrestigeTokenReward();
             state.prestigeLevel++; 
-            state.prestigeTokens++; 
+            state.prestigeTokens += earnedTokens; 
             state.multiplier = 1.0 + state.prestigeLevel;
             
             const startingCredits = Math.round(getPrestigePerkLevel('start_cache') * 25000 * Math.max(1, state.prestigeLevel));
@@ -2465,8 +2734,8 @@
             renderCardsTab();
             
             playSynthSound('levelup'); 
-            addSystemLog(`HIPER-OVERCLOCK CONCLUÍDO: Núcleo ${state.prestigeLevel} ativado.`, 'success');
-            showNotification(`Overclock concluído: +1 HN`, 'success');
+            addSystemLog(`HIPER-OVERCLOCK CONCLUÍDO: Núcleo ${state.prestigeLevel} ativado. Tokens +${earnedTokens}.`, 'success');
+            showNotification(`Overclock concluído: +1 HN / +${earnedTokens} tokens`, 'success');
             saveGame(false);
             switchTab('tab-dash');
         }
@@ -2476,12 +2745,7 @@
         document.getElementById('btn-clicker').addEventListener('click', (e) => {
             playSynthSound('click');
             
-            const upg = upgrades.find(x => x.type === 'click_power'); 
-            const bonusPower = upg ? upg.purchased * upg.value : 0;
-            const procBonus = 1 + (state.attributes.processing.value * 0.02);
-            const cardBonus = 1 + getCardBonusMultiplier('credits');
-            
-            const total = (1.0 + bonusPower) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus * (1 + getPrestigePerkLevel('click') * 0.25);
+            const total = getClickCreditValue();
             
             state.credits += total; 
             state.totalCredits += total;
@@ -2493,7 +2757,7 @@
                 createFloatingTextOnCursor(e, `+${dfGain} DF`, 'text-fuchsia-400');
             }
             
-            createFloatingTextOnCursor(e, `+${total.toFixed(1)} C$`, 'text-cyan-400');
+            createFloatingTextOnCursor(e, `+${formatCredits(total)}`, 'text-cyan-400');
             gainXP(0.5); 
             updateUI();
         });
@@ -2518,10 +2782,7 @@
 
         function gameTick() {
             const timeScale = state.gameSpeedMultiplier;
-            const procBonus = 1 + (state.attributes.processing.value * 0.02); 
-            const cardBonus = 1 + getCardBonusMultiplier('credits');
-            
-            const earnTick = (state.passiveCps / 10) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * timeScale * cardBonus;
+            const earnTick = (getPassiveCreditPerSecond() / 10) * timeScale;
             
             state.credits += earnTick; 
             state.totalCredits += earnTick;
@@ -2544,9 +2805,7 @@
             const prestigeAutoClicks = getPrestigePerkLevel('auto') * 2;
             const autoClickCount = (autoUpg ? autoUpg.purchased : 0) + prestigeAutoClicks;
             if (autoClickCount > 0) {
-                const upgClick = upgrades.find(x => x.type === 'click_power'); 
-                const bonusPow = upgClick ? upgClick.purchased * upgClick.value : 0;
-                const powerPerClick = (1.0 + bonusPow) * procBonus * getEffectiveGlobalMultiplier() * breachMultiplier * cardBonus * (1 + getPrestigePerkLevel('click') * 0.25);
+                const powerPerClick = getClickCreditValue();
                 
                 const acCredits = (autoClickCount * 0.1) * powerPerClick;
                 state.credits += acCredits; 
@@ -2597,7 +2856,7 @@
                 return `
                     <button ${!isMax ? getHoldBuyAttrs('upgrade', id) : ''} id="btn-quick-breach-${id}" class="p-2 rounded-lg border text-left taptarget-glow ${isMax ? 'bg-emerald-950/30 border-emerald-500/30 text-emerald-400' : (canBuy ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' : 'bg-black/40 border-white/5 text-slate-600 cursor-not-allowed')}" ${canBuy ? '' : 'disabled'}>
                         <span class="block text-[10px] font-black uppercase">${isMax ? 'MAX' : title} <span class="font-mono-cyber">${u.purchased}/${u.max}</span></span>
-                        <span class="block text-[9px] font-mono-cyber mt-1">${isMax ? 'Instalado' : `${Math.round(u.costCredits)} C$${u.costData > 0 ? ` + ${u.costData} DF` : ''}`}</span>
+                        <span class="block text-[9px] font-mono-cyber mt-1">${isMax ? 'Instalado' : `${formatCredits(u.costCredits)}${u.costData > 0 ? ` + ${formatData(u.costData)}` : ''}`}</span>
                     </button>
                 `;
             }).join('');
@@ -2678,19 +2937,21 @@
             const equippedCards = state.cards.filter(c => c.equipped).length;
             const values = [
                 ['Nível', state.level],
-                ['XP', `${Math.round(state.xp)}/${state.xpNeeded}`],
-                ['C$/s', state.passiveCps.toFixed(2)],
-                ['DF', state.dataFragments],
+                ['XP', `${formatNumber(state.xp, 0)}/${formatNumber(state.xpNeeded, 0)}`],
+                ['C$/s', formatNumber(getPassiveCreditPerSecond(), 2)],
+                ['DF', formatNumber(state.dataFragments, 2)],
                 ['Cards', `${state.cards.length} (${equippedCards} eq.)`],
                 ['Cyber', `${boughtCyber}/${cyberwares.length}`],
                 ['Daemons', daemons.reduce((sum, d) => sum + d.count, 0)],
                 ['NetWatch', `${Math.round(state.netwatchTracker)}%`],
                 ['Spawn', `${Math.round(state.enemySpawnRate || 1200)}ms`],
-                ['DF/s', `${getPassiveDataRate().toFixed(2)}`],
+                ['DF/s', formatNumber(getPassiveDataRate(), 2)],
                 ['Slots', `${getMaxEquippedCards()}`],
                 ['Sorte', `${Number(state.luckMultiplier === undefined ? 1 : state.luckMultiplier).toFixed(2)}x`],
                 ['Boss', `${Math.round((state.bossSpawnChance === undefined ? 0.06 : state.bossSpawnChance) * 100)}%`],
-                ['Dific.', `${Number(state.enemyDifficultyMultiplier === undefined ? 1 : state.enemyDifficultyMultiplier).toFixed(2)}x`]
+                ['Dific.', `${Number(state.enemyDifficultyMultiplier === undefined ? 1 : state.enemyDifficultyMultiplier).toFixed(2)}x`],
+                ['Softcap', state.balanceSoftcapEnabled !== false ? getCurrentSoftcapLabel() : 'OFF'],
+                ['Contrato', state.contracts && state.contracts.activeId ? (getContractRemainingMs() > 0 ? 'Ativo' : 'Pronto') : 'Livre']
             ];
             box.innerHTML = values.map(([label, value]) => `
                 <div class="p-3 bg-slate-950 rounded-lg border border-slate-800">
@@ -2701,8 +2962,8 @@
         }
 
         function updateUI() {
-            setText('global-credits', `${state.credits.toFixed(2)} C$`);
-            setText('global-data', `${state.dataFragments} DF`);
+            setText('global-credits', formatCredits(state.credits));
+            setText('global-data', formatData(state.dataFragments));
             setText('hacker-level', state.level);
             
             setStyleWidth('hacker-xp-bar', `${Math.min(100, Math.max(0, (state.xp / state.xpNeeded) * 100))}%`);
@@ -2712,20 +2973,21 @@
             const actualXpClick = 0.5 * boostXp * state.xpMultiplier * (1 + getCardBonusMultiplier('xp')) * (1 + (getPrestigePerkLevel('xp') * 0.3));
             
             const xpDisplay = document.getElementById('display-xp-click'); 
-            if (xpDisplay) xpDisplay.innerText = `+${actualXpClick.toFixed(2)} XP/clique`;
+            if (xpDisplay) xpDisplay.innerText = `+${formatNumber(actualXpClick, 2)} XP/clique`;
 
             const uClk = upgrades.find(u => u.type === 'click_power'); 
             const bClk = uClk ? uClk.purchased * uClk.value : 0;
             const pBon = 1 + (state.attributes.processing.value * 0.02); 
             const cBon = 1 + getCardBonusMultiplier('credits');
             
-            setText('display-click-val', `+${((1.0 + bClk) * pBon * getEffectiveGlobalMultiplier() * breachMultiplier * cBon * (1 + getPrestigePerkLevel('click') * 0.25)).toFixed(2)} C$/clique`);
-            setText('stat-passive-rate', `${(state.passiveCps * pBon * getEffectiveGlobalMultiplier() * breachMultiplier * cBon).toFixed(2)}`);
-            setText('stat-passive-df-rate', `${getPassiveDataRate().toFixed(2)}`);
+            setText('display-click-val', `+${formatCredits(getClickCreditValue())}/clique`);
+            setText('stat-passive-rate', formatRate(getPassiveCreditPerSecond(), ' C$/s'));
+            setText('stat-passive-df-rate', formatRate(getPassiveDataRate(), ' DF/s'));
             state.maxEquippedCards = getMaxEquippedCards();
             setText('stat-attr-mod', `+${Math.round((pBon - 1) * 100)}%`);
-            setText('stat-conversion', `${(getEffectiveGlobalMultiplier() * breachMultiplier * cBon).toFixed(2)}x`);
-            setText('stat-ice-max', `${state.playerHpMax} HP`);
+            setText('stat-conversion', `${formatNumber(getEffectiveCreditMultiplier(), 2)}x`);
+            setText('stat-ice-max', `${formatNumber(state.playerHpMax, 0)} HP`);
+            setText('stat-softcap', getCurrentSoftcapLabel());
             setText('tracker-pct', `${Math.round(state.netwatchTracker)}%`);
             setStyleWidth('tracker-bar', `${state.netwatchTracker}%`);
             setText('breach-bonus-display', `${getBreachBaseMultiplier().toFixed(2)}x`);
@@ -2735,12 +2997,15 @@
             if (godToggle) godToggle.checked = state.godMode;
             const oneHitToggle = document.getElementById('admin-onehit');
             if (oneHitToggle) oneHitToggle.checked = state.oneHitKill;
+            const softcapToggle = document.getElementById('admin-softcap');
+            if (softcapToggle) softcapToggle.checked = state.balanceSoftcapEnabled !== false;
             const speedSlider = document.getElementById('slider-gamespeed');
             if (speedSlider) speedSlider.value = state.gameSpeedMultiplier;
             setText('slider-gamespeed-val', `${state.gameSpeedMultiplier.toFixed(2).replace('.00', '')}x`);
 
             syncAdminControlValues();
             renderPrestigeTab();
+            renderContracts();
             
             updateSkillCooldownUI();
             updateAdminSummary();
@@ -3380,7 +3645,7 @@
         }
 
         function forcePrestigeReady() {
-            const req = 15 + (state.prestigeLevel * 5);
+            const req = getPrestigeRequirement();
             if (state.level < req) {
                 state.level = req;
                 state.xp = 0;
@@ -3574,6 +3839,64 @@
             setText('slider-netwatch-val', `${state.netwatchRateMultiplier.toFixed(2)}x`);
         }
 
+        function toggleSoftcap() {
+            const el = document.getElementById('admin-softcap');
+            state.balanceSoftcapEnabled = el ? el.checked : true;
+            updateUI();
+            showNotification(`Softcap ${state.balanceSoftcapEnabled ? 'ativado' : 'desativado'}.`, 'info');
+        }
+
+        function simulateOfflineGain(hours) {
+            const h = Math.max(0, Number(hours) || 0);
+            const creditGain = getPassiveCreditPerSecond() * 3600 * h;
+            const dataGain = getPassiveDataRate() * 3600 * h;
+            state.credits += creditGain;
+            state.totalCredits += creditGain;
+            state.dataFragments += Math.round(dataGain);
+            updateUI();
+            showNotification(`Simulação ${h}h: +${formatCredits(creditGain)} / +${formatData(dataGain)}`, 'success');
+        }
+
+        function setTestPhase(phase) {
+            if (phase === 'mid') {
+                state.level = Math.max(state.level, 35);
+                state.credits += 2500000;
+                state.totalCredits += 2500000;
+                state.dataFragments += 4500;
+                state.statPoints += 80;
+                daemons.slice(0, 8).forEach((d, idx) => { d.count = Math.max(d.count, 5 + idx); });
+            } else if (phase === 'late') {
+                state.level = Math.max(state.level, 95);
+                state.prestigeLevel = Math.max(state.prestigeLevel, 3);
+                state.prestigeTokens += 8;
+                state.credits += 150000000;
+                state.totalCredits += 150000000;
+                state.dataFragments += 45000;
+                state.statPoints += 220;
+                daemons.slice(0, 14).forEach((d, idx) => { d.count = Math.max(d.count, 10 + idx); });
+                for (let i = 0; i < 6; i++) addCardToInventory(generateRandomCard(3, 5), false);
+            } else {
+                state.level = Math.max(state.level, 180);
+                state.prestigeLevel = Math.max(state.prestigeLevel, 8);
+                state.prestigeTokens += 20;
+                state.credits += 5000000000;
+                state.totalCredits += 5000000000;
+                state.dataFragments += 250000;
+                state.statPoints += 500;
+                daemons.slice(0, 20).forEach((d, idx) => { d.count = Math.max(d.count, 18 + idx); });
+                for (let i = 0; i < 12; i++) addCardToInventory(generateRandomCard(4, 5), false);
+            }
+            state.multiplier = 1.0 + state.prestigeLevel;
+            state.xpNeeded = Math.round(100 * Math.pow(state.level, 1.4));
+            recalculatePassiveCps();
+            applyAttributeEffects();
+            renderDaemons();
+            renderDashboardAttributes();
+            refreshCardInventoryUI();
+            updateUI();
+            showNotification(`Fase de teste ${phase.toUpperCase()} aplicada.`, 'success');
+        }
+
         function toggleGodMode() { 
             state.godMode = document.getElementById('admin-godmode').checked; 
         }
@@ -3582,6 +3905,7 @@
         }
         function injectCredits(v) { 
             state.credits += v; 
+            state.totalCredits += v;
             updateUI(); 
             showNotification(`+${Number(v).toLocaleString('pt-BR')} C$ injetados`, 'success');
         }
