@@ -5066,6 +5066,512 @@
             initV8OpsLayer();
         };
 
+        // ================= V9 ENDGAME AVANÇADO: CHIPS CORROMPIDOS, PROTÓTIPOS, LOADOUTS E OTIMIZADOR =================
+        const V9_BUILD_WEIGHTS = {
+            general: { credits: 1.00, data: 1.00, xp: 0.85, damage: 0.75, speed: 0.55, shield: 0.55, click: 0.75, passive: 0.90, breach_power: 0.75, breach_time: 0.70, card_drop: 0.70, crit: 0.70 },
+            farm: { credits: 1.20, data: 1.25, passive: 1.20, click: 0.75, xp: 0.55, card_drop: 0.85, breach_power: 0.45, breach_time: 0.45, damage: 0.25, speed: 0.20, shield: 0.20, crit: 0.20 },
+            arena: { damage: 1.35, crit: 1.15, shield: 1.00, speed: 0.90, card_drop: 0.65, data: 0.45, xp: 0.45, credits: 0.25, passive: 0.20, click: 0.20, breach_power: 0.20, breach_time: 0.20 },
+            breach: { breach_power: 1.40, breach_time: 1.25, data: 1.05, card_drop: 0.65, xp: 0.45, credits: 0.25, passive: 0.25, click: 0.20, damage: 0.20, speed: 0.15, shield: 0.15, crit: 0.15 },
+            overclock: { xp: 1.35, credits: 0.90, data: 0.65, click: 0.70, passive: 0.60, breach_power: 0.45, breach_time: 0.45, card_drop: 0.55, damage: 0.25, speed: 0.20, shield: 0.20, crit: 0.20 }
+        };
+
+        const V9_VARIANT_META = {
+            standard: { label: 'Padrão', icon: 'fa-sd-card', color: 'text-slate-300', border: 'border-white/10' },
+            corrupted: { label: 'Corrompido', icon: 'fa-skull-crossbones', color: 'text-rose-400', border: 'border-rose-500/35' },
+            prototype: { label: 'Protótipo', icon: 'fa-flask-vial', color: 'text-cyan-300', border: 'border-cyan-400/35' }
+        };
+
+        function ensureV9State() {
+            if (!state.v9 || typeof state.v9 !== 'object') state.v9 = {};
+            if (!state.v9.loadouts || typeof state.v9.loadouts !== 'object') {
+                state.v9.loadouts = { farm: [], arena: [], breach: [] };
+            }
+            ['farm', 'arena', 'breach'].forEach(slot => {
+                if (!Array.isArray(state.v9.loadouts[slot])) state.v9.loadouts[slot] = [];
+            });
+            if (!state.v9.prototypeShifts) state.v9.prototypeShifts = 0;
+            if (!state.v9.specialCrafts) state.v9.specialCrafts = 0;
+            if (!state.v9.lastOptimizerBuild) state.v9.lastOptimizerBuild = 'general';
+            if (!state.v9.compareMode) state.v9.compareMode = 'general';
+        }
+
+        function getV9VariantMeta(variant) {
+            return V9_VARIANT_META[variant] || V9_VARIANT_META.standard;
+        }
+
+        const formatCardAttributeBeforeV9 = formatCardAttribute;
+        formatCardAttribute = function(attr) {
+            const meta = getCardAttributeMeta(attr.type);
+            const raw = Number(attr.value) || 0;
+            const sign = raw >= 0 ? '+' : '-';
+            return `${sign}${formatCardPercent(Math.abs(raw))} ${attr.label || meta.label}`;
+        };
+
+        const calculateCardPowerBeforeV9 = calculateCardPower;
+        calculateCardPower = function(card) {
+            const attrs = Array.isArray(card.attributes) ? card.attributes : [];
+            const positivePower = attrs.filter(a => (Number(a.value) || 0) >= 0).reduce((sum, attr) => sum + ((Number(attr.value) || 0) * 100), 0);
+            const negativePower = attrs.filter(a => (Number(a.value) || 0) < 0).reduce((sum, attr) => sum + (Math.abs(Number(attr.value) || 0) * 75), 0);
+            const variantBoost = card.variant === 'corrupted' ? 18 : (card.variant === 'prototype' ? 14 : 0);
+            const raw = Math.round((card.stars || 1) * 17 + positivePower * 2.35 - negativePower + variantBoost + (card.favorite ? 3 : 0) + (card.locked ? 2 : 0));
+            return Math.max(1, raw);
+        };
+
+        function getV9PositiveCardAttributes(card) {
+            return (Array.isArray(card.attributes) ? card.attributes : []).filter(attr => (Number(attr.value) || 0) > 0);
+        }
+
+        function getV9NegativeCardAttributes(card) {
+            return (Array.isArray(card.attributes) ? card.attributes : []).filter(attr => (Number(attr.value) || 0) < 0);
+        }
+
+        function getV9ForcedFamilyFromFilter() {
+            ensureV9State();
+            const filter = state.cardFilter;
+            if (CARD_FAMILIES[filter] && !['all', 'favorites', 'locked', 'equipped'].includes(filter)) return filter;
+            return null;
+        }
+
+        function applyV9CardVariant(card, variant = 'standard') {
+            if (!card) return null;
+            card.variant = variant;
+            card.corrupted = variant === 'corrupted';
+            card.prototype = variant === 'prototype';
+            card.prototypeCycle = Number(card.prototypeCycle) || 0;
+            if (variant === 'corrupted') {
+                if (card.stars < 2) card.stars = 2;
+                if (!Array.isArray(card.attributes) || card.attributes.length < card.stars) {
+                    const hybrid = buildHybridAttributes(card.stars, card.family || getV9ForcedFamilyFromFilter());
+                    card.family = hybrid.family;
+                    card.attributes = hybrid.attrs;
+                }
+                card.attributes = card.attributes.slice(0, card.stars).map((attr, idx) => {
+                    const meta = getCardAttributeMeta(attr.type || 'credits');
+                    const next = Object.assign({}, attr);
+                    next.label = next.label || meta.label;
+                    next.color = next.color || meta.color;
+                    next.value = Math.abs(Number(next.value) || meta.bonusPerStar) * (idx === card.stars - 1 ? 1 : 1.75);
+                    return next;
+                });
+                const positives = CARD_ATTRIBUTE_POOL.filter(a => !card.attributes.slice(0, -1).some(attr => attr.type === a.type));
+                const penaltySrc = positives.length ? positives[Math.floor(Math.random() * positives.length)] : CARD_ATTRIBUTE_POOL[Math.floor(Math.random() * CARD_ATTRIBUTE_POOL.length)];
+                const penaltyValue = -Number((penaltySrc.bonusPerStar * (1.45 + Math.random() * 0.45)).toFixed(4));
+                card.attributes[card.stars - 1] = { type: penaltySrc.type, label: penaltySrc.label, value: penaltyValue, color: 'text-rose-400' };
+                if (!/^Corrompido:/.test(card.name || '')) card.name = `Corrompido: ${card.name}`;
+            } else if (variant === 'prototype') {
+                if (!/^Protótipo:/.test(card.name || '')) card.name = `Protótipo: ${card.name}`;
+                card.prototypeSeed = card.prototypeSeed || ('proto_' + Date.now() + '_' + Math.random().toString(36).slice(2));
+                card.attributes = (Array.isArray(card.attributes) ? card.attributes : []).slice(0, card.stars).map(attr => {
+                    const meta = getCardAttributeMeta(attr.type || 'credits');
+                    return {
+                        type: meta.type,
+                        label: meta.label,
+                        color: meta.color,
+                        value: Number(((Math.abs(Number(attr.value) || meta.bonusPerStar) * 1.22)).toFixed(4))
+                    };
+                });
+            } else {
+                card.corrupted = false;
+                card.prototype = false;
+                card.variant = 'standard';
+            }
+            const primary = getCardPrimaryAttribute(card);
+            card.type = primary.type;
+            card.stat = primary.label;
+            card.value = primary.value;
+            card.color = primary.color || getCardFamilyMeta(card.family).color;
+            card.bonusText = formatCardAttribute(primary);
+            return card;
+        }
+
+        function rerollPrototypeCard(card) {
+            if (!card || card.variant !== 'prototype') return card;
+            const previousAttrs = Array.isArray(card.attributes) ? card.attributes.map(a => a.type) : [];
+            const hybrid = buildHybridAttributes(card.stars || 1, card.family || null);
+            card.family = hybrid.family || card.family;
+            card.attributes = hybrid.attrs.map((attr, idx) => {
+                let value = Math.abs(Number(attr.value) || getCardAttributeMeta(attr.type).bonusPerStar) * 1.24;
+                if (previousAttrs.includes(attr.type)) value *= 1.06;
+                return { type: attr.type, label: attr.label, color: attr.color, value: Number(value.toFixed(4)) };
+            });
+            card.prototypeCycle = (Number(card.prototypeCycle) || 0) + 1;
+            const primary = getCardPrimaryAttribute(card);
+            card.type = primary.type;
+            card.stat = primary.label;
+            card.value = primary.value;
+            card.color = primary.color || getCardFamilyMeta(card.family).color;
+            card.bonusText = formatCardAttribute(primary);
+            return card;
+        }
+
+        function shiftAllPrototypeCards() {
+            ensureV9State();
+            let shifted = 0;
+            if (Array.isArray(state.cards)) {
+                state.cards.forEach(card => {
+                    if (card.variant === 'prototype') {
+                        rerollPrototypeCard(card);
+                        shifted++;
+                    }
+                });
+            }
+            if (shifted > 0) {
+                state.v9.prototypeShifts += shifted;
+                showLocalActionPopupById('inventory-count', `${shifted} proto`, 'info');
+                refreshCardInventoryUI();
+            }
+        }
+
+        const normalizeCardsForV7BeforeV9 = normalizeCardsForV7;
+        normalizeCardsForV7 = function() {
+            normalizeCardsForV7BeforeV9();
+            ensureV9State();
+            if (!Array.isArray(state.cards)) state.cards = [];
+            state.cards.forEach(card => {
+                if (!card.variant) card.variant = card.corrupted ? 'corrupted' : (card.prototype ? 'prototype' : 'standard');
+                if (!['standard', 'corrupted', 'prototype'].includes(card.variant)) card.variant = 'standard';
+                card.corrupted = card.variant === 'corrupted';
+                card.prototype = card.variant === 'prototype';
+                if (card.variant === 'prototype' && !card.prototypeSeed) card.prototypeSeed = 'proto_' + card.id;
+                if (card.variant === 'corrupted') {
+                    const negatives = getV9NegativeCardAttributes(card);
+                    if (negatives.length === 0 && card.stars >= 2) {
+                        applyV9CardVariant(card, 'corrupted');
+                    }
+                }
+            });
+        };
+
+        const generateRandomCardBeforeV9 = generateRandomCard;
+        generateRandomCard = function(minStars = 1, maxStars = 5, forcedFamily = null) {
+            const card = generateRandomCardBeforeV9(minStars, maxStars, forcedFamily);
+            ensureV9State();
+            const specialChance = Math.min(0.18, 0.025 + ((Number(state.prestigeLevel) || 0) * 0.006) + getCardBonusMultiplier('card_drop') * 0.08);
+            if ((Number(state.prestigeLevel) || 0) >= 2 && card.stars >= 3 && Math.random() < specialChance) {
+                applyV9CardVariant(card, Math.random() < 0.55 ? 'corrupted' : 'prototype');
+            }
+            return card;
+        };
+
+        function calculateCardBuildScore(card, build = 'general') {
+            const weights = V9_BUILD_WEIGHTS[build] || V9_BUILD_WEIGHTS.general;
+            const attrs = Array.isArray(card.attributes) ? card.attributes : [];
+            const attrScore = attrs.reduce((sum, attr) => {
+                const weight = weights[attr.type] !== undefined ? weights[attr.type] : 0.25;
+                return sum + ((Number(attr.value) || 0) * 100 * weight);
+            }, 0);
+            const familyBoosts = {
+                farm: ['daemon', 'quantum', 'neural'],
+                arena: ['arena', 'glitch'],
+                breach: ['breach', 'glitch', 'quantum'],
+                overclock: ['overclock', 'neural', 'quantum'],
+                general: ['neural', 'daemon', 'breach', 'arena', 'overclock', 'quantum', 'glitch']
+            };
+            const familyBoost = (familyBoosts[build] || familyBoosts.general).includes(card.family) ? 10 : 0;
+            const variantBoost = card.variant === 'prototype' ? 8 : (card.variant === 'corrupted' ? 5 : 0);
+            return Math.round((card.stars || 1) * 18 + attrScore + familyBoost + variantBoost + (card.favorite ? 2 : 0));
+        }
+
+        function getBestReplacementForCard(candidate, build = 'general') {
+            if (!candidate) return null;
+            const equipped = state.cards.filter(c => c.equipped && c.id !== candidate.id);
+            if (equipped.length === 0) return null;
+            const scored = equipped.map(card => ({ card, score: calculateCardBuildScore(card, build) })).sort((a, b) => a.score - b.score);
+            const weakest = scored[0];
+            const candidateScore = calculateCardBuildScore(candidate, build);
+            return { current: weakest.card, currentScore: weakest.score, candidateScore, delta: candidateScore - weakest.score };
+        }
+
+        function optimizeDeckForBuild(build = 'general') {
+            ensureV9State();
+            normalizeCardsForV7();
+            const max = getMaxEquippedCards();
+            const sorted = state.cards.slice().sort((a, b) => calculateCardBuildScore(b, build) - calculateCardBuildScore(a, build));
+            state.cards.forEach(card => { card.equipped = false; });
+            sorted.slice(0, max).forEach(card => { card.equipped = true; });
+            state.v9.lastOptimizerBuild = build;
+            state.selectedCardId = sorted[0] ? sorted[0].id : null;
+            applyAttributeEffects();
+            playSynthSound('powerup');
+            showLocalActionPopupById('equipped-count', build.toUpperCase(), 'success');
+            renderCardsTab();
+            updateUI();
+            saveGame(false);
+        }
+
+        function saveDeckLoadout(slot) {
+            ensureV9State();
+            state.v9.loadouts[slot] = state.cards.filter(c => c.equipped).map(c => c.id);
+            showLocalActionPopupById(`v9-loadout-${slot}`, 'SALVO', 'success');
+            renderV9DeckTools();
+            saveGame(false);
+        }
+
+        function loadDeckLoadout(slot) {
+            ensureV9State();
+            const ids = Array.isArray(state.v9.loadouts[slot]) ? state.v9.loadouts[slot] : [];
+            if (ids.length === 0) {
+                showLocalActionPopupById(`v9-loadout-${slot}`, 'VAZIO', 'warn');
+                return false;
+            }
+            const max = getMaxEquippedCards();
+            state.cards.forEach(c => { c.equipped = false; });
+            let equipped = 0;
+            ids.forEach(id => {
+                const card = state.cards.find(c => c.id === id);
+                if (card && equipped < max) {
+                    card.equipped = true;
+                    equipped++;
+                }
+            });
+            applyAttributeEffects();
+            playSynthSound('click');
+            showLocalActionPopupById(`v9-loadout-${slot}`, `${equipped}/${max}`, 'info');
+            renderCardsTab();
+            updateUI();
+            saveGame(false);
+            return true;
+        }
+
+        function craftV9SpecialCard(variant = 'corrupted') {
+            ensureV9State();
+            const costs = variant === 'prototype'
+                ? { shards: 180, data: 320, starsMin: 3, starsMax: 5 }
+                : { shards: 130, data: 220, starsMin: 3, starsMax: 5 };
+            if (state.cardShards < costs.shards || state.dataFragments < costs.data) {
+                showLocalActionPopupById('card-shards-display', `${costs.shards} frag + ${costs.data} DF`, 'warn');
+                return false;
+            }
+            state.cardShards -= costs.shards;
+            state.dataFragments -= costs.data;
+            const card = generateRandomCardBeforeV9(costs.starsMin, costs.starsMax, getV9ForcedFamilyFromFilter());
+            applyV9CardVariant(card, variant);
+            addCardToInventory(card, true);
+            state.v9.specialCrafts += 1;
+            playSynthSound('levelup');
+            showLocalActionPopupById('card-shards-display', variant === 'prototype' ? 'PROTO' : 'CORRUPT', variant === 'prototype' ? 'info' : 'error');
+            renderCardsTab();
+            updateUI();
+            saveGame(false);
+            return true;
+        }
+
+        function rerollSelectedCardV9(lockPrimary = false) {
+            ensureV9State();
+            normalizeCardsForV7();
+            const card = state.cards.find(c => c.id === state.selectedCardId);
+            if (!card) {
+                showLocalActionPopupById('inventory-count', 'Selecione', 'warn');
+                return false;
+            }
+            if (card.locked) {
+                showLocalActionPopupById('card-shards-display', 'Travado', 'warn');
+                return false;
+            }
+            const baseCost = Math.max(35, card.stars * 22);
+            const dfCost = Math.max(25, card.stars * 18);
+            if (state.cardShards < baseCost || state.dataFragments < dfCost) {
+                showLocalActionPopupById('card-shards-display', `${baseCost} frag + ${dfCost} DF`, 'warn');
+                return false;
+            }
+            state.cardShards -= baseCost;
+            state.dataFragments -= dfCost;
+            const keep = lockPrimary ? Object.assign({}, getCardPrimaryAttribute(card)) : null;
+            const variant = card.variant || 'standard';
+            const hybrid = buildHybridAttributes(card.stars, card.family);
+            let attrs = hybrid.attrs;
+            if (keep && attrs.length > 0) attrs[0] = keep;
+            card.attributes = attrs;
+            card.family = hybrid.family || card.family;
+            if (variant !== 'standard') applyV9CardVariant(card, variant);
+            else {
+                const primary = getCardPrimaryAttribute(card);
+                card.type = primary.type;
+                card.stat = primary.label;
+                card.value = primary.value;
+                card.color = primary.color || getCardFamilyMeta(card.family).color;
+                card.bonusText = formatCardAttribute(primary);
+            }
+            playSynthSound('powerup');
+            showLocalActionPopupById('card-shards-display', lockPrimary ? 'Reroll +' : 'Reroll', 'success');
+            renderCardsTab();
+            updateUI();
+            saveGame(false);
+            return true;
+        }
+
+        function installV9DeckUI() {
+            const cardsTab = document.getElementById('tab-cards');
+            if (!cardsTab || cardsTab.dataset.v9Installed === '1') return;
+            cardsTab.dataset.v9Installed = '1';
+            const labPanels = cardsTab.querySelectorAll('.glass-panel');
+            const labPanel = labPanels && labPanels.length ? labPanels[1] : null;
+            if (labPanel) {
+                labPanel.insertAdjacentHTML('beforeend', `
+                    <div id="v9-special-forge" class="pt-4 border-t border-white/10 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-[10px] font-black text-rose-400 uppercase tracking-widest">Forja V9</h4>
+                            <span class="text-[9px] text-slate-500 font-mono-cyber">endgame craft</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="craftV9SpecialCard('corrupted')" class="p-3 rounded-xl bg-rose-500/10 text-rose-300 border border-rose-500/25 font-black text-[10px] uppercase taptarget-glow"><i class="fa-solid fa-skull-crossbones mr-1"></i> Corrompido</button>
+                            <button onclick="craftV9SpecialCard('prototype')" class="p-3 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/25 font-black text-[10px] uppercase taptarget-glow"><i class="fa-solid fa-flask-vial mr-1"></i> Protótipo</button>
+                            <button onclick="rerollSelectedCardV9(false)" class="p-3 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/25 font-black text-[10px] uppercase taptarget-glow"><i class="fa-solid fa-dice mr-1"></i> Reroll</button>
+                            <button onclick="rerollSelectedCardV9(true)" class="p-3 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/25 font-black text-[10px] uppercase taptarget-glow"><i class="fa-solid fa-anchor-lock mr-1"></i> Trava 1º</button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 leading-snug font-mono-cyber">Corrompidos têm bônus altos e uma penalidade. Protótipos recalibram atributos a cada Hiper Overclock.</p>
+                    </div>
+                `);
+            }
+            const grid = cardsTab.querySelector('.grid.grid-cols-1.xl\\:grid-cols-12') || cardsTab.querySelector('.xl\\:grid-cols-12');
+            if (grid) {
+                grid.insertAdjacentHTML('afterbegin', `
+                    <div id="v9-deck-control-panel" class="xl:col-span-12 glass-panel p-4 flex flex-col gap-3 border border-cyan-500/10">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <div>
+                                <h3 class="text-xs font-black text-cyan-300 uppercase tracking-widest"><i class="fa-solid fa-sliders mr-2"></i>Deck Builds V9</h3>
+                                <p class="text-[10px] text-slate-500 font-mono-cyber mt-1">Loadouts, comparador e otimizador de build sem trocar a estética do Deck.</p>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                <button onclick="optimizeDeckForBuild('general')" class="px-3 py-2 rounded-lg bg-slate-950 border border-white/10 text-slate-300 font-black text-[10px] uppercase taptarget-glow">Geral</button>
+                                <button onclick="optimizeDeckForBuild('farm')" class="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 font-black text-[10px] uppercase taptarget-glow">Farm</button>
+                                <button onclick="optimizeDeckForBuild('arena')" class="px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300 font-black text-[10px] uppercase taptarget-glow">Arena</button>
+                                <button onclick="optimizeDeckForBuild('breach')" class="px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/25 text-orange-300 font-black text-[10px] uppercase taptarget-glow">Breach</button>
+                                <button onclick="optimizeDeckForBuild('overclock')" class="px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-300 font-black text-[10px] uppercase taptarget-glow">Over</button>
+                            </div>
+                        </div>
+                        <div id="v9-loadouts-container" class="grid grid-cols-1 md:grid-cols-3 gap-2"></div>
+                    </div>
+                `);
+            }
+        }
+
+        function renderV9DeckTools() {
+            ensureV9State();
+            const loadouts = document.getElementById('v9-loadouts-container');
+            if (loadouts) {
+                const labels = {
+                    farm: { name: 'Loadout Farm', color: 'emerald', icon: 'fa-coins' },
+                    arena: { name: 'Loadout Arena', color: 'rose', icon: 'fa-gamepad' },
+                    breach: { name: 'Loadout Breach', color: 'orange', icon: 'fa-code' }
+                };
+                loadouts.innerHTML = Object.keys(labels).map(slot => {
+                    const meta = labels[slot];
+                    const saved = state.v9.loadouts[slot] || [];
+                    const live = saved.filter(id => state.cards.some(c => c.id === id)).length;
+                    return `
+                        <div id="v9-loadout-${slot}" class="relative p-3 rounded-xl bg-black/35 border border-white/5 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-[10px] text-${meta.color}-300 font-black uppercase tracking-widest"><i class="fa-solid ${meta.icon} mr-1"></i>${meta.name}</div>
+                                <div class="text-[10px] text-slate-500 font-mono-cyber mt-1">${live}/${getMaxEquippedCards()} chips salvos</div>
+                            </div>
+                            <div class="flex gap-1 shrink-0">
+                                <button onclick="saveDeckLoadout('${slot}')" class="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-slate-300 font-black text-[9px] uppercase taptarget-glow">Salvar</button>
+                                <button onclick="loadDeckLoadout('${slot}')" class="px-2.5 py-1.5 rounded-lg bg-${meta.color}-500/10 border border-${meta.color}-500/25 text-${meta.color}-300 font-black text-[9px] uppercase taptarget-glow">Usar</button>
+                            </div>
+                        </div>`;
+                }).join('');
+            }
+        }
+
+        function renderV9CardInspectorAddon() {
+            const container = document.getElementById('card-inspector-container');
+            if (!container || !state.selectedCardId) return;
+            const card = state.cards.find(c => c.id === state.selectedCardId);
+            if (!card) return;
+            const meta = getV9VariantMeta(card.variant || 'standard');
+            const selectedBuild = (state.v9 && state.v9.lastOptimizerBuild) || 'general';
+            const replacement = getBestReplacementForCard(card, selectedBuild);
+            const positive = getV9PositiveCardAttributes(card).length;
+            const negative = getV9NegativeCardAttributes(card).length;
+            let compareHtml = `<div class="text-[11px] text-slate-500 font-mono-cyber">Equipe chips ou selecione um chip fora do deck para comparar.</div>`;
+            if (replacement && !card.equipped) {
+                const deltaClass = replacement.delta >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                compareHtml = `
+                    <div class="flex flex-col gap-1 text-[11px] font-mono-cyber">
+                        <div class="flex justify-between"><span class="text-slate-500">Build:</span><span class="text-cyan-300 font-black uppercase">${selectedBuild}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Novo chip:</span><span class="text-slate-200 font-black">${calculateCardBuildScore(card, selectedBuild)}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Substituiria:</span><span class="text-slate-200 font-black truncate max-w-[150px]">${escapeHTML(replacement.current.name)}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Delta:</span><span class="${deltaClass} font-black">${replacement.delta >= 0 ? '+' : ''}${replacement.delta}</span></div>
+                    </div>`;
+            }
+            container.insertAdjacentHTML('beforeend', `
+                <div class="mt-4 rounded-xl bg-black/35 border ${meta.border} p-3 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase tracking-widest ${meta.color}"><i class="fa-solid ${meta.icon} mr-1"></i>${meta.label}</span>
+                        <span class="text-[10px] text-slate-500 font-mono-cyber">+${positive} / -${negative}</span>
+                    </div>
+                    <div class="rounded-lg bg-slate-950/70 border border-white/5 p-3">
+                        <div class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2">Comparador</div>
+                        ${compareHtml}
+                    </div>
+                    ${card.variant === 'prototype' ? `<div class="text-[10px] text-cyan-300 font-mono-cyber">Ciclos de recalibração: ${Number(card.prototypeCycle) || 0}. Próxima mutação no próximo Hiper Overclock.</div>` : ''}
+                    ${card.variant === 'corrupted' ? `<div class="text-[10px] text-rose-300 font-mono-cyber">Alta potência com penalidade real. Ideal para builds agressivas.</div>` : ''}
+                </div>
+            `);
+        }
+
+        const renderCardInspectorBeforeV9 = renderCardInspector;
+        renderCardInspector = function() {
+            renderCardInspectorBeforeV9();
+            renderV9CardInspectorAddon();
+        };
+
+        const renderCardsTabBeforeV9 = renderCardsTab;
+        renderCardsTab = function() {
+            normalizeCardsForV7();
+            renderCardsTabBeforeV9();
+            renderV9DeckTools();
+        };
+
+        const executePrestigeResetBeforeV9 = executePrestigeReset;
+        executePrestigeReset = function() {
+            const canReset = state.level >= getPrestigeRequirement();
+            executePrestigeResetBeforeV9();
+            if (canReset) shiftAllPrototypeCards();
+        };
+
+        const normalizeStateDefaultsBeforeV9 = normalizeStateDefaults;
+        normalizeStateDefaults = function() {
+            normalizeStateDefaultsBeforeV9();
+            ensureV9State();
+            normalizeCardsForV7();
+        };
+
+        const updateAdminSummaryBeforeV9 = updateAdminSummary;
+        updateAdminSummary = function() {
+            updateAdminSummaryBeforeV9();
+            const box = document.getElementById('admin-state-summary');
+            if (box && state.v9) {
+                const extra = document.createElement('div');
+                extra.className = 'p-3 bg-slate-950 rounded-lg border border-cyan-500/20';
+                extra.innerHTML = `<span class="block text-slate-500 uppercase text-[9px]">V9 Deck</span><span class="block text-cyan-300 font-black mt-1">${state.v9.specialCrafts || 0} crafts</span>`;
+                box.appendChild(extra);
+            }
+        };
+
+        window.craftV9SpecialCard = craftV9SpecialCard;
+        window.rerollSelectedCardV9 = rerollSelectedCardV9;
+        window.optimizeDeckForBuild = optimizeDeckForBuild;
+        window.saveDeckLoadout = saveDeckLoadout;
+        window.loadDeckLoadout = loadDeckLoadout;
+
+        function initV9EndgameLayer() {
+            ensureV9State();
+            installV9DeckUI();
+            normalizeCardsForV7();
+            renderV9DeckTools();
+            if (document.getElementById('tab-cards') && document.getElementById('tab-cards').classList.contains('active')) renderCardsTab();
+            addSystemLog('V9 ENDGAME DECK CARREGADO: LOADOUTS, CORRUPÇÃO E PROTÓTIPOS ATIVOS.', 'success');
+        }
+
+        const windowOnLoadBeforeV9 = window.onload;
+        window.onload = function() {
+            if (typeof windowOnLoadBeforeV9 === 'function') windowOnLoadBeforeV9();
+            initV9EndgameLayer();
+        };
+
+
 
     </script>
 </body>
